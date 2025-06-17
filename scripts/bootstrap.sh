@@ -32,35 +32,29 @@ apply_firmly(){
 install_gitops(){
   echo
   echo "Checking if GitOps Operator is already installed and running"
-  
-  if [[ $(oc get csv -n ${OPERATOR_NS} -l operators.coreos.com/openshift-gitops-operator.${OPERATOR_NS}='' -o jsonpath='{.items[0].status.phase}' 2>/dev/null) == "Succeeded" ]]; then
-    echo
-    echo "GitOps operator is already installed and running"
-  else
-    echo
-    echo "Installing GitOps Operator."
 
-    apply_firmly ${GITOPS_OVERLAY} 
-
-    # oc wait docs:
-    # https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/developer-cli-commands.html#oc-wait
-    #
-    # kubectl wait docs:
-    # https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#wait
-
-    echo "Retrieving the InstallPlan name"
-    INSTALL_PLAN_NAME=$(oc get sub openshift-gitops-operator -n ${OPERATOR_NS} -o jsonpath='{.status.installPlanRef.name}')
-
-    echo "Retrieving the CSV name"
-    CSV_NAME=$(oc get ip $INSTALL_PLAN_NAME -n ${OPERATOR_NS} -o jsonpath='{.spec.clusterServiceVersionNames[0]}')
-
-    echo "Wait the Operator installation to be completed"
-    oc wait --for jsonpath='{.status.phase}'=Succeeded csv/$CSV_NAME -n ${OPERATOR_NS}
-
-    echo ""
-    echo "OpenShift GitOps successfully installed."
+  # Detect if the GitOps operator CSV is in 'Succeeded' state
+  if oc get csv -n ${OPERATOR_NS} | grep -q "openshift-gitops-operator.*Succeeded"; then
+    echo "✅ GitOps operator is already installed and running."
+    return 0
   fi
+
+  echo "🛠️ Installing GitOps Operator..."
+
+  apply_firmly ${GITOPS_OVERLAY}
+
+  echo "📦 Retrieving the InstallPlan name..."
+  INSTALL_PLAN_NAME=$(oc get sub openshift-gitops-operator -n ${OPERATOR_NS} -o jsonpath='{.status.installPlanRef.name}')
+
+  echo "📜 Retrieving the CSV name..."
+  CSV_NAME=$(oc get ip "$INSTALL_PLAN_NAME" -n ${OPERATOR_NS} -o jsonpath='{.spec.clusterServiceVersionNames[0]}')
+
+  echo "⏳ Waiting for operator installation to complete..."
+  oc wait --for=jsonpath='{.status.phase}'=Succeeded csv/${CSV_NAME} -n ${OPERATOR_NS}
+
+  echo "✅ OpenShift GitOps successfully installed."
 }
+
 
 
 
