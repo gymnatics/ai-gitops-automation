@@ -10,7 +10,7 @@ setup_bin(){
   mkdir -p ${TMP_DIR}/bin
   echo "${PATH}" | grep -q "${TMP_DIR}/bin" || \
     PATH=$(pwd)/${TMP_DIR}/bin:${PATH}
-    export PATH
+  export PATH
 }
 
 check_bin(){
@@ -150,7 +150,7 @@ check_branch(){
   fi
 
   GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  APP_BRANCH=$(yq eval -r "${APP_PATCH_PATH}" ${APP_PATCH_FILE})
+  APP_BRANCH=$(yq eval "${APP_PATCH_PATH}" ${APP_PATCH_FILE})
 
   if [[ ${GIT_BRANCH} == ${APP_BRANCH} ]]; then
     echo "Your working branch ${GIT_BRANCH}, matches your cluster overlay branch ${APP_BRANCH}"
@@ -204,7 +204,7 @@ check_repo(){
   else
     GIT_REPO=$(git config --get remote.origin.url)
     GIT_REPO_BASENAME=$(get_git_basename ${GIT_REPO})
-    APP_REPO=$(yq eval -r "${APP_PATCH_PATH}" ${APP_PATCH_FILE})
+    APP_REPO=$(yq eval "${APP_PATCH_PATH}" ${APP_PATCH_FILE})
     APP_REPO_BASENAME=$(get_git_basename ${APP_REPO})
 
     if [[ ${GIT_REPO_BASENAME} == ${APP_REPO_BASENAME} ]]; then
@@ -224,11 +224,11 @@ check_repo(){
   fi
 }
 
-patch_file () {
+patch_file(){
   APP_PATCH_FILE=$1
   NEW_VALUE=$2
   YQ_PATH=$3
-  CURRENT_VALUE=$(yq eval -r ${YQ_PATH} ${APP_PATCH_FILE})
+  CURRENT_VALUE=$(yq eval "${YQ_PATH}" ${APP_PATCH_FILE})
   if [[ ${CURRENT_VALUE} == ${NEW_VALUE} ]]; then
     echo "${APP_PATCH_FILE} already has value ${NEW_VALUE}"
     return
