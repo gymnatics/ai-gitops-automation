@@ -22,6 +22,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: REPLICAS
+              value: "4"
           command:
             - /bin/bash
             - -c
