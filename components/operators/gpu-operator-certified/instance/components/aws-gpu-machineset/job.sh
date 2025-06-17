@@ -23,6 +23,7 @@ ocp_aws_create_gpu_machineset(){
   # 8 x gaudi:  dl1.24xlarge
 
   INSTANCE_TYPE=${1:-g4dn.4xlarge}
+  REPLICAS=${REPLICAS:-1}
 
   ocp_aws_clone_machineset "${INSTANCE_TYPE}"
 
@@ -39,10 +40,16 @@ ocp_aws_create_gpu_machineset(){
     echo "Unable to taint nodes, patch file ${PATCH_FILE} not found."
     exit 1
   fi
- 
+
+  echo "Patching ${MACHINE_SET_TYPE} with instanceType: ${INSTANCE_TYPE}"
   oc -n openshift-machine-api \
     patch "${MACHINE_SET_TYPE}" \
     --type=merge --patch '{"spec":{"template":{"spec":{"providerSpec":{"value":{"instanceType":"'"${INSTANCE_TYPE}"'"}}}}}}'
+
+  echo "Patching ${MACHINE_SET_TYPE} with replicas: ${REPLICAS}"
+  oc -n openshift-machine-api \
+    patch "${MACHINE_SET_TYPE}" \
+    --type=merge --patch '{"spec":{"replicas":'"${REPLICAS}"'}}'
 }
 
 ocp_aws_clone_machineset(){
@@ -52,19 +59,20 @@ ocp_aws_clone_machineset(){
   "
 
   INSTANCE_TYPE=${1:-g4dn.4xlarge}
+  REPLICAS=${REPLICAS:-1}
   MACHINE_SET=$(oc -n openshift-machine-api get machinesets.machine.openshift.io -o name | grep worker | head -n1)
 
   # check for an existing instance machine set
   if oc -n openshift-machine-api get machinesets.machine.openshift.io -o name | grep -q "${INSTANCE_TYPE%.*}"; then
     echo "Exists: machineset - ${INSTANCE_TYPE}"
   else
-    echo "Creating: machineset - ${INSTANCE_TYPE}"
+    echo "Creating: machineset - ${INSTANCE_TYPE} with replicas: ${REPLICAS}"
     oc -n openshift-machine-api \
       get "${MACHINE_SET}" -o yaml | \
         sed '/machine/ s/-worker/-'"${INSTANCE_TYPE}"'/g
-          /name/ s/-worker/-'"${INSTANCE_TYPE%.*}"'/g
-          s/instanceType.*/instanceType: '"${INSTANCE_TYPE}"'/
-          s/replicas.*/replicas: 0/' | \
+            /name/ s/-worker/-'"${INSTANCE_TYPE%.*}"'/g
+            s/instanceType.*/instanceType: '"${INSTANCE_TYPE}"'/
+            s/replicas.*/replicas: '"${REPLICAS}"'/' | \
       oc apply -f -
   fi
 }
@@ -94,7 +102,8 @@ YAML
 }
 
 INSTANCE_TYPE=${INSTANCE_TYPE:-g4dn.4xlarge}
+REPLICAS=${REPLICAS:-1}
 
 ocp_aws_cluster || exit 0
-ocp_aws_create_gpu_machineset ${INSTANCE_TYPE}
+ocp_aws_create_gpu_machineset "${INSTANCE_TYPE}"
 ocp_create_machineset_autoscale
