@@ -19,15 +19,15 @@ apply_firmly(){
     return 1
   fi
 
-  # kludge
-  until oc kustomize "${1}" --enable-helm | oc apply -f- 2>/dev/null
+  # Debug: show real apply errors instead of suppressing them
+  until oc kustomize "${1}" --enable-helm | oc apply -f-
   do
     echo -n "."
     sleep 5
   done
   echo ""
-  # until_true oc apply -k "${1}" 2>/dev/null
 }
+
 
 install_gitops(){
   echo
