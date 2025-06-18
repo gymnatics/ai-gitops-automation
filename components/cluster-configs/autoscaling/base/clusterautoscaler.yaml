@@ -14,8 +14,8 @@ spec:
       max: 384
     gpus:
       - type: nvidia.com/gpu
-        min: 0
-        max: 2
+        min: 3
+        max: 4
   scaleDown:
     enabled: true
     delayAfterAdd: 5m
