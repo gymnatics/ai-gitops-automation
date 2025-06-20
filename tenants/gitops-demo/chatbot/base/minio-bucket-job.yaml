@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-create-bucket
+  namespace: demo-chatbot
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: mc
+          image: minio/mc
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for MinIO to be reachable..."
+              until nc -zv minio-service.demo-chatbot.svc.cluster.local 9000; do sleep 2; done
+
+              echo "Setting up mc alias..."
+              mc alias set myminio http://minio-service.demo-chatbot.svc.cluster.local:9000 minio minio123
+
+              echo "Creating bucket 'demo-chatbot' if it doesn't exist..."
+              mc mb -p myminio/demo-chatbot || echo "Bucket may already exist"
+
+              echo "Done"
