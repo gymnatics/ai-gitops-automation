@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-elasticsearch-admin
+  namespace: demo-chatbot
+spec:
+  template:
+    spec:
+      containers:
+        - name: create-admin
+          image: curlimages/curl
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export ELASTIC_PWD=$(cat /mnt/secret/elastic | base64 -d)
+              echo "Waiting for ES to be ready..."
+              sleep 20
+              curl -k -u elastic:$ELASTIC_PWD -X POST https://elasticsearch-sample.demo-chatbot.svc:9200/_security/user/myadmin \
+                -H "Content-Type: application/json" \
+                -d '{"password":"newpassword123","roles":["superuser"],"full_name":"My Admin"}'
+          volumeMounts:
+            - name: es-secret
+              mountPath: /mnt/secret
+      restartPolicy: OnFailure
+      volumes:
+        - name: es-secret
+          secret:
+            secretName: elasticsearch-sample-es-elastic-user
