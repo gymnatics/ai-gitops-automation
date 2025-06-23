@@ -1,6 +1,37 @@
 apiVersion: opendatahub.io/v1alpha
 kind: OdhDashboardConfig
 metadata:
+  name: odh-dashboard-config
   annotations:
     argocd.argoproj.io/sync-options: ServerSideApply=true
-  name: odh-dashboard-config
+spec:
+  dashboardConfig:
+    disableInfo: false
+    enableAccessControl: true
+    modelServerSizes:
+      - name: Small
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+      - name: Medium
+        resources:
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+  groupsConfig:
+    allowAll: true
+  notebooks:
+    enabled: true
+  modelServing:
+    enabled: true
+  projectNamespace:
+    name: redhat-ods-applications
+    displayName: Red Hat ODS Applications
+
