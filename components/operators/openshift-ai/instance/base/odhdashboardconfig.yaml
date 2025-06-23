@@ -13,20 +13,64 @@ spec:
         resources:
           requests:
             cpu: "1"
-            memory: "2Gi"
+            memory: "4Gi"
           limits:
             cpu: "2"
-            memory: "4Gi"
+            memory: "8Gi"
       - name: Medium
         resources:
           requests:
-            cpu: "2"
-            memory: "4Gi"
-          limits:
             cpu: "4"
             memory: "8Gi"
+          limits:
+            cpu: "8"
+            memory: "10Gi"
+      - name: Large
+        resources:
+          requests:
+            cpu: "6"
+            memory: "16Gi"
+          limits:
+            cpu: "10"
+            memory: "20Gi"
+  notebookSizes:
+    - name: Small
+      resources:
+        requests:
+          cpu: "1"
+          memory: "8Gi"
+        limits:
+          cpu: "2"
+          memory: "8Gi"
+    - name: Medium
+      resources:
+        requests:
+          cpu: "3"
+          memory: "24Gi"
+        limits:
+          cpu: "6"
+          memory: "24Gi"
+    - name: Large
+      resources:
+        requests:
+          cpu: "7"
+          memory: "56Gi"
+        limits:
+          cpu: "14"
+          memory: "56Gi"
+    - name: X Large
+      resources:
+        requests:
+          cpu: "15"
+          memory: "120Gi"
+        limits:
+          cpu: "30"
+          memory: "120Gi"
+  notebookController:
+    pvcSize: 20Gi
   groupsConfig:
-    allowAll: true
+    adminGroups: rhods-admins
+    allowedGroups: "system:authenticated"
   notebooks:
     enabled: true
   modelServing:
@@ -34,4 +78,3 @@ spec:
   projectNamespace:
     name: redhat-ods-applications
     displayName: Red Hat ODS Applications
-
