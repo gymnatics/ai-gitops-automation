@@ -8,11 +8,15 @@ spec:
     managementState: Managed
     namespace: redhat-ods-monitoring
   serviceMesh:
+    auth:
+      audiences:
+        - 'https://kubernetes.default.svc'
     controlPlane:
       metricsCollection: Istio
       name: data-science-smcp
       namespace: istio-system
-    managementState: Removed
+    managementState: Managed
   trustedCABundle:
     customCABundle: ''
     managementState: Managed
+
