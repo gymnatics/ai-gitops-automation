@@ -4,10 +4,19 @@ metadata:
   name: default
 spec:
   components:
-    codeflare:
-      managementState: Removed
+    dashboard:
+      managementState: Managed
+    datasciencepipelines:
+      managementState: Managed
+    workbenches:
+      managementState: Managed
+    modelmeshserving:
+      managementState: Managed
     kserve:
-      managementState: Removed
+      managementState: Managed
+      nim:
+        managementState: Managed
+      rawDeploymentServiceConfig: Headless
       serving:
         ingressGateway:
           certificate:
@@ -15,21 +24,22 @@ spec:
         managementState: Managed
         name: knative-serving
     modelregistry:
-      registriesNamespace: rhoai-model-registries
-      managementState: Removed
-    trustyai:
-      managementState: Removed
-    ray:
-      managementState: Removed
-    kueue:
-      managementState: Removed
-    workbenches:
-      managementState: Removed
-    dashboard:
       managementState: Managed
-    modelmeshserving:
-      managementState: Removed
-    datasciencepipelines:
-      managementState: Removed
+      registriesNamespace: rhoai-model-registries
+    trustyai:
+      managementState: Managed
+    codeflare:
+      managementState: Managed
+    ray:
+      managementState: Managed
+    kueue:
+      managementState: Managed
     trainingoperator:
-      managementState: Removed
+      managementState: Managed
+  enableComponentMonitoring: true
+  nodeSelector:
+    beta.kubernetes.io/arch: amd64
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
