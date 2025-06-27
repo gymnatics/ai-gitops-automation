@@ -5,6 +5,7 @@ namespace: redhat-ods-applications
 
 resources:
   - datasciencecluster.yaml
-  - dsc-init.yaml
   - namespace.yaml
+  - namespace-operator.yaml
   - odhdashboardconfig.yaml
+
