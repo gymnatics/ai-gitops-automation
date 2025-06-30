@@ -13,7 +13,7 @@ resources:
   - servingruntime.yaml
 
 patches:
-  - path: patch-create-namespace-wave.yaml
+  - path: patch-namespace.yaml
     target:
       kind: Namespace
       name: demo-chatbot   # <-- must match metadata.name in create-namespace.yaml
