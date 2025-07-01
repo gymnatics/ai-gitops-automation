@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: demo-chatbot  # Ensure this namespace is created or included in resources
 
 resources:
-  - ../../../base
+  - ../../../../base
 
 patchesStrategicMerge:
   - env-vars.yaml     # Optional: sets env vars like model URL, S3 URL
