@@ -34,7 +34,7 @@ check_bin(){
 }
 
 download_kubeseal(){
-  KUBESEAL_VERSION="0.19.4"
+  KUBESEAL_VERSION="0.23.0"
   if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ $(uname -p) == 'arm' ]]; then
       DOWNLOAD_URL=https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-darwin-arm64.tar.gz
@@ -45,12 +45,16 @@ download_kubeseal(){
     if [[ $(uname -p) == 'arm' ]]; then
       DOWNLOAD_URL=https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-arm.tar.gz
     else
-      DOWNLOAD_URL=https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz
+      DOWNLOAD_URL=https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION:?}/kubeseal-${KUBESEAL_VERSION:?}-linux-amd64.tar.gz
     fi  
   fi
   echo "Downloading Kubeseal: ${DOWNLOAD_URL}"
-  curl "${DOWNLOAD_URL}" -L | tar vzx -C ${TMP_DIR}/bin kubeseal
+  curl -OL "${DOWNLOAD_URL}"
+  tar -xvzf kubeseal-${KUBESEAL_VERSION:?}-linux-amd64.tar.gz kubeseal
+  sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 }
+
+
 
 download_ocp-install(){
   DOWNLOAD_URL=https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-${OCP_VERSION}/openshift-install-linux.tar.gz
@@ -237,6 +241,3 @@ patch_file(){
 }
 
 
-setup_bin
-download_kustomize
-download_kubeseal
