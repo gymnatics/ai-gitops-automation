@@ -5,6 +5,7 @@ commonAnnotations:
   argocd.argoproj.io/sync-wave: "2"   # Default for everything else
 
 resources:
+  - create-namespace.yaml
   - elasticsearch-bootstrap-job.yaml
   - elasticsearch-cr.yaml
   - elasticsearch-route.yaml
