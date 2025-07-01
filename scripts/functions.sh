@@ -236,6 +236,9 @@ patch_file(){
   yq eval --inplace "${YQ_PATH} = \"${NEW_VALUE}\"" ${APP_PATCH_FILE}
 }
 
+
+setup_bin
+check_bin
 download_kustomize
 download_kubeseal
 create_sealed_secret
