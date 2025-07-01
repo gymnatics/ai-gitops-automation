@@ -240,5 +240,3 @@ patch_file(){
 setup_bin
 download_kustomize
 download_kubeseal
-create_sealed_secret
-check_sealed_secret
