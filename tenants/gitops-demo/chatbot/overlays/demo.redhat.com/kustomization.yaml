@@ -6,6 +6,6 @@ namespace: demo-chatbot  # Ensure this namespace is created or included in resou
 resources:
   - ../../../base
 
-patchesStrategicMerge:
-  - env-vars.yaml     # Optional: sets env vars like model URL, S3 URL
-  - tolerations.yaml  # Optional: only if chatbot pod needs GPU or taints
+#patchesStrategicMerge:
+#  - env-vars.yaml     # Optional: sets env vars like model URL, S3 URL
+#  - tolerations.yaml  # Optional: only if chatbot pod needs GPU or taints
