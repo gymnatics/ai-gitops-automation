@@ -105,6 +105,9 @@ bootstrap_cluster(){
 
 # Verify CLI tooling
 setup_bin
+download_kustomize
+download_kubeseal
+
 check_bin oc
 check_bin kustomize
 # check_bin kubeseal
