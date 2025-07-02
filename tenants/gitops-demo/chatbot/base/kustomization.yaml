@@ -17,4 +17,8 @@ patches:
   - path: patch-namespace.yaml
     target:
       kind: Namespace
-      name: demo-chatbot   # <-- must match metadata.name in create-namespace.yaml
+      name: demo-chatbot
+  - path: patch-minio-bucket-job.yaml
+    target:
+      kind: Job
+      name: minio-create-bucket
