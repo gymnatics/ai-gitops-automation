@@ -105,6 +105,7 @@ bootstrap_cluster(){
 
 # Verify CLI tooling
 setup_bin
+download_yq
 download_kustomize
 download_kubeseal
 
