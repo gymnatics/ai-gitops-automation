@@ -13,20 +13,21 @@ spec:
           args:
             - |
               ls /mnt/secret
-              ls /mnt/secret/es-secret
-              export ELASTIC_PWD1=$(cat /mnt/secret/es-secret)
+              ls /mnt/secret/elastic
+              export ELASTIC_PWD1=$(cat /mnt/secret/elastic)
               echo $ELASTIC_PWD1
-              export ELASTIC_PWD=$(cat /mnt/secret/es-secret | base64 -d)
+              export ELASTIC_PWD=$(cat /mnt/secret/elastic | base64 -d)
+              echo $ELASTIC_PWD
               echo "Waiting for ES to be ready..."
               sleep 20
               curl -k -u elastic:$ELASTIC_PWD -X POST https://elasticsearch-sample-es-http.demo-chatbot.svc.cluster.local:9200/_security/user/myadmin \
                 -H "Content-Type: application/json" \
                 -d '{"password":"newpassword123","roles":["superuser"],"full_name":"My Admin"}'
           volumeMounts:
-            - name: es-secret
+            - name: elastic
               mountPath: /mnt/secret
       restartPolicy: OnFailure
       volumes:
-        - name: es-secret
+        - name: elastic
           secret:
             secretName: elasticsearch-sample-es-elastic-user
