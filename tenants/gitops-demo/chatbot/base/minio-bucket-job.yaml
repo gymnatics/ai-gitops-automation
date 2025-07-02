@@ -9,17 +9,14 @@ spec:
       restartPolicy: Never
       containers:
         - name: mc
-          image: curlimages/curl
+          image: quay.io/minio/mc
           command:
             - /bin/sh
             - -c
             - |
-              echo "Installing MinIO Client (mc)..."
-              curl -sLO https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x mc && mv mc /usr/bin/
-
               echo "Waiting for MinIO to be reachable..."
-              until curl -s http://minio-service.demo-chatbot.svc.cluster.local:9000/minio/health/live; do
-                echo "Waiting for MinIO to be live..."
+              until wget -q --spider http://minio-service.demo-chatbot.svc.cluster.local:9000/minio/health/live; do
+                echo "Waiting..."
                 sleep 2
               done
 
