@@ -12,6 +12,9 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
+              ls /mnt/secret/es-secret
+              export ELASTIC_PWD1=$(cat /mnt/secret/es-secret)
+              echo $ELASTIC_PWD1
               export ELASTIC_PWD=$(cat /mnt/secret/es-secret | base64 -d)
               echo "Waiting for ES to be ready..."
               sleep 20
