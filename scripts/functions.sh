@@ -33,6 +33,26 @@ check_bin(){
   echo
 }
 
+download_yq() {
+  if ! command -v yq &> /dev/null; then
+    echo "🔧 yq not found. Installing..."
+    VERSION=v4.2.0
+    BINARY=yq_linux_amd64
+
+    wget -q https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - | \
+      tar xz && sudo mv ${BINARY} /usr/local/bin/yq
+
+    if command -v yq &> /dev/null; then
+      echo "✅ yq installed successfully."
+    else
+      echo "❌ Failed to install yq."
+    fi
+  else
+    echo "✅ yq already installed."
+  fi
+}
+
+
 download_kubeseal(){
   KUBESEAL_VERSION="0.23.0"
   if [[ "$OSTYPE" == "darwin"* ]]; then
