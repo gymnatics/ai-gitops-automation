@@ -12,7 +12,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              export ELASTIC_PWD=$(cat /mnt/secret/elasticsearch-sample-es-elastic-user | base64 -d)
+              export ELASTIC_PWD=$(cat /mnt/secret/elasticsearch-sample-es-elastic-user)
               echo "Waiting for ES to be ready..."
               sleep 20
               curl -k -u elastic:$ELASTIC_PWD -X POST https://elasticsearch-sample-es-http.demo-chatbot.svc.cluster.local:9200/_security/user/myadmin \
