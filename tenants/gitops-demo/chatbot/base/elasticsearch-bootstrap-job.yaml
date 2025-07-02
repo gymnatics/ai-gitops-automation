@@ -12,6 +12,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
+              ls /mnt/secret
               ls /mnt/secret/es-secret
               export ELASTIC_PWD1=$(cat /mnt/secret/es-secret)
               echo $ELASTIC_PWD1
