@@ -9,13 +9,18 @@ spec:
       restartPolicy: Never
       containers:
         - name: mc
-          image: quay.io/minio/mc
+          image: alpine:3.19
           command:
             - /bin/sh
             - -c
             - |
+              echo "Installing curl and mc..."
+              apk add --no-cache curl && \
+              curl -sLO https://dl.min.io/client/mc/release/linux-amd64/mc && \
+              chmod +x mc && mv mc /usr/bin/
+
               echo "Waiting for MinIO to be reachable..."
-              until wget -q --spider http://minio-service.demo-chatbot.svc.cluster.local:9000/minio/health/live; do
+              until curl -s http://minio-service.demo-chatbot.svc.cluster.local:9000/minio/health/live; do
                 echo "Waiting..."
                 sleep 2
               done
