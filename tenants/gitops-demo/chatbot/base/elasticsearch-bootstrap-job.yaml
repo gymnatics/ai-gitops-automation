@@ -15,7 +15,7 @@ spec:
               export ELASTIC_PWD=$(cat /mnt/secret/elastic | base64 -d)
               echo "Waiting for ES to be ready..."
               sleep 20
-              curl -k -u elastic:$ELASTIC_PWD -X POST elasticsearch-sample-es-http.demo-chatbot.svc.cluster.local:9200/_security/user/myadmin \
+              curl -k -u elastic:$ELASTIC_PWD -X POST https://elasticsearch-sample-es-http.demo-chatbot.svc.cluster.local:9200/_security/user/myadmin \
                 -H "Content-Type: application/json" \
                 -d '{"password":"newpassword123","roles":["superuser"],"full_name":"My Admin"}'
           volumeMounts:
