@@ -9,22 +9,11 @@ spec:
       restartPolicy: Never
       containers:
         - name: mc
-          image: alpine:3.19
+          image: minio/mc
           command:
             - /bin/sh
             - -c
             - |
-              echo "Installing curl and mc..."
-              apk add --no-cache curl && \
-              curl -sLO https://dl.min.io/client/mc/release/linux-amd64/mc && \
-              chmod +x mc && mv mc /usr/bin/
-
-              echo "Waiting for MinIO to be reachable..."
-              until curl -s http://minio-service.demo-chatbot.svc.cluster.local:9000/minio/health/live; do
-                echo "Waiting..."
-                sleep 2
-              done
-
               echo "Setting up mc alias..."
               mc alias set myminio http://minio-service.demo-chatbot.svc.cluster.local:9000 minio minio123
 
