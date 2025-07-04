@@ -10,6 +10,9 @@ spec:
       containers:
         - name: mc
           image: minio/mc
+          env:
+            - name: MC_CONFIG_DIR
+              value: /tmp/.mc
           command:
             - /bin/sh
             - -c
