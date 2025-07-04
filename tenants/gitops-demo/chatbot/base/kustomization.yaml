@@ -19,7 +19,7 @@ patches:
     target:
       kind: Namespace
       name: demo-chatbot
-  - path: patch-minio-bucket-job.yaml
+  - path: patch-minio-job.yaml
     target:
       kind: Job
       name: minio-create-bucket
