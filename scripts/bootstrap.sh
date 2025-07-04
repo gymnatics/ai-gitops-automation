@@ -109,6 +109,9 @@ download_yq
 download_kustomize
 download_kubeseal
 
+KUSTOMIZE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/tmp/bin"
+export PATH="${KUSTOMIZE_DIR}:$PATH"
+
 check_bin oc
 check_bin kustomize
 # check_bin kubeseal
