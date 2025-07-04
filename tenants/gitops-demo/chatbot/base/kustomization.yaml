@@ -10,7 +10,6 @@ resources:
   - elasticsearch-cr.yaml
   - elasticsearch-route.yaml
   - minio-bucket-job.yaml
-  - patch-minio-job.yaml
   - minio.yaml
   - servingruntime.yaml
 
