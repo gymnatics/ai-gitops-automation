@@ -75,6 +75,7 @@ spec:
     enabled: true
   modelServing:
     enabled: true
+    deploymentMode: ModelMesh
   projectNamespace:
     name: redhat-ods-applications
     displayName: Red Hat ODS Applications
