@@ -1,6 +1,6 @@
-# Red Hat Composer AI Infrastructure GitOps
+# Red Hat AI Infrastructure GitOps
 
-Welcome to the Red Hat Composer AI Infrastructure GitOps project\! This project is a fork of the upstream [AI Accelerator project](https://github.com/redhat-ai-services/ai-accelerator) and is designed to deploy all of the required cluster components for Composer AI to an OpenShift cluster.
+Welcome to the Red Hat AI Infrastructure GitOps project\! This project is a fork of the upstream [AI Accelerator project](https://github.com/redhat-ai-services/ai-accelerator) and is designed to deploy all of the required cluster components for AI Workloads to an OpenShift cluster.
 
 ![AI Accelerator Overview](documentation/diagrams/AI_Accelerator.drawio.png)
 
