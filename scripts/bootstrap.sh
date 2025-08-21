@@ -84,6 +84,12 @@ bootstrap_cluster(){
 
   check_branch
   check_repo
+
+  if [[ "$bootstrap_dir" == "on-prem-environment/" ]]; then
+    on_prem_wizard
+  else
+    select_operators
+  fi
   
   echo "Apply overlay to override default instance"
   kustomize build "${base_dir}/${bootstrap_dir}" | oc apply -f -

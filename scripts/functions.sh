@@ -248,6 +248,156 @@ check_repo(){
   fi
 }
 
+on_prem_wizard() {
+    print_heading "On-Premise Configuration Wizard"
+
+    # Operator Selection
+    local operators_dir="components/operators"
+    local kustomization_file="kustomization.yaml"
+    local patch_file="patch-operator-list.yaml"
+    local selected_operators=()
+
+    # Get a list of available operators
+    local operators=()
+    while IFS= read -r -d 
+
+select_operators() {
+    local operators_dir="components/operators"
+    local kustomization_file="kustomization.yaml"
+    local patch_file="patch-operator-list.yaml"
+
+    # Get a list of available operators
+    local operators=()
+    while IFS= read -r -d 
+
+
+ '; do
+        operators+=("$(basename "$REPLY")")
+    done < <(find "$operators_dir" -mindepth 1 -maxdepth 1 -type d -print0)
+
+    # Create a menu of available operators
+    echo "Please select the operators you want to install:"
+    local ps3="Select an operator to add (or 'done' to finish): "
+    local selected_operators=()
+    while true; do
+        select operator in "${operators[@]}" "done"; do
+            case "$operator" in
+                "done")
+                    break 2
+                    ;;
+                "")
+                    echo "Invalid selection. Please try again."
+                    break
+                    ;;
+                *)
+                    if [[ ! " ${selected_operators[*]} " =~ " ${operator} " ]]; then
+                        selected_operators+=("$operator")
+                        echo "Added $operator."
+                    else
+                        echo "$operator is already selected."
+                    fi
+                    break
+                    ;;
+            esac
+        done
+    done
+
+    # Generate the kustomization patch file
+    if [ ${#selected_operators[@]} -gt 0 ]; then
+        echo "resources:" > "$bootstrap_dir/$patch_file"
+        for operator in "${selected_operators[@]}"; do
+            echo "  - ../../../components/operators/$operator/operator/overlays/default" >> "$bootstrap_dir/$patch_file"
+        done
+        echo "Generated $patch_file with selected operators."
+
+        # Add the patch to the main kustomization.yaml
+        if ! grep -q "$patch_file" "$bootstrap_dir/$kustomization_file"; then
+            echo "Applying patch to $bootstrap_dir/$kustomization_file"
+            echo -e "
+resources:
+  - $patch_file" >> "$bootstrap_dir/$kustomization_file"
+        fi
+    else
+        echo "No operators selected. Skipping patch generation."
+    fi
+}
+
+
+ '; do
+        operators+=("$(basename "$REPLY")")
+    done < <(find "$operators_dir" -mindepth 1 -maxdepth 1 -type d -print0)
+
+    echo "Please select the operators you want to install:"
+    local ps3="Select an operator to add (or 'done' to finish): "
+    while true; do
+        select operator in "${operators[@]}" "done"; do
+            case "$operator" in
+                "done")
+                    break 2
+                    ;;
+                "")
+                    echo "Invalid selection. Please try again."
+                    break;
+                    ;;
+                *)
+                    if [[ ! " ${selected_operators[*]} " =~ " ${operator} " ]]; then
+                        selected_operators+=("$operator")
+                        echo "Added $operator."
+                    else
+                        echo "$operator is already selected."
+                    fi
+                    break;
+                    ;;
+            esac
+        done
+    done
+
+    # GPU Configuration
+    read -r -p "Are you using GPUs in your on-premise environment? (y/N) " use_gpus
+    if [[ "$use_gpus" =~ ^[yY](es)?$ ]]; then
+        print_warning "Please ensure you have created a custom overlay for the nvidia-gpu-operator that matches your specific hardware."
+        print_warning "You will need to update the path in patch-operators-list.yaml manually after this wizard is complete."
+    fi
+
+    # Storage Configuration
+    read -r -p "Do you need a storage operator for your on-premise storage? (e.g., for NFS, Ceph, or local storage) (y/N) " use_storage_operator
+    if [[ "$use_storage_operator" =~ ^[yY](es)?$ ]]; then
+        print_info "Please add the name of your storage operator to the list of selected operators."
+        read -r -p "Enter the name of the storage operator component: " storage_operator_name
+        if [[ -n "$storage_operator_name" ]]; then
+            selected_operators+=("$storage_operator_name")
+        fi
+    fi
+
+    # Networking/Load Balancer
+    read -r -p "Do you need a bare-metal load balancer like MetalLB? (y/N) " use_metallb
+    if [[ "$use_metallb" =~ ^[yY](es)?$ ]]; then
+        if [[ ! " ${selected_operators[*]} " =~ " metallb-operator " ]]; then
+            selected_operators+=("metallb-operator")
+            echo "Added metallb-operator."
+        fi
+    fi
+
+    # Generate the kustomization patch file
+    if [ ${#selected_operators[@]} -gt 0 ]; then
+        echo "resources:" > "$bootstrap_dir/$patch_file"
+        for operator in "${selected_operators[@]}"; do
+            echo "  - ../../../components/operators/$operator/operator/overlays/default" >> "$bootstrap_dir/$patch_file"
+        done
+        echo "Generated $patch_file with selected operators."
+
+        # Add the patch to the main kustomization.yaml
+        if ! grep -q "$patch_file" "$bootstrap_dir/$kustomization_file"; then
+            echo "Applying patch to $bootstrap_dir/$kustomization_file"
+            echo -e "
+resources:
+  - $patch_file" >> "$bootstrap_dir/$kustomization_file"
+        fi
+    else
+        echo "No operators selected. Skipping patch generation."
+    fi
+}
+
 patch_file(){
   APP_PATCH_FILE=$1
   NEW_VALUE=$2
@@ -258,6 +408,67 @@ patch_file(){
     return
   fi
   yq eval --inplace "${YQ_PATH} = \"${NEW_VALUE}\"" ${APP_PATCH_FILE}
+}
+
+select_operators() {
+    local operators_dir="components/operators"
+    local kustomization_file="kustomization.yaml"
+    local patch_file="patch-operator-list.yaml"
+
+    # Get a list of available operators
+    local operators=()
+    while IFS= read -r -d 
+
+
+ '; do
+        operators+=("$(basename "$REPLY")")
+    done < <(find "$operators_dir" -mindepth 1 -maxdepth 1 -type d -print0)
+
+    # Create a menu of available operators
+    echo "Please select the operators you want to install:"
+    local ps3="Select an operator to add (or 'done' to finish): "
+    local selected_operators=()
+    while true; do
+        select operator in "${operators[@]}" "done"; do
+            case "$operator" in
+                "done")
+                    break 2
+                    ;;
+                "")
+                    echo "Invalid selection. Please try again."
+                    break
+                    ;;
+                *)
+                    if [[ ! " ${selected_operators[*]} " =~ " ${operator} " ]]; then
+                        selected_operators+=("$operator")
+                        echo "Added $operator."
+                    else
+                        echo "$operator is already selected."
+                    fi
+                    break
+                    ;;
+            esac
+        done
+    done
+
+    # Generate the kustomization patch file
+    if [ ${#selected_operators[@]} -gt 0 ]; then
+        echo "resources:" > "$bootstrap_dir/$patch_file"
+        for operator in "${selected_operators[@]}"; do
+            echo "  - ../../../components/operators/$operator/operator/overlays/default" >> "$bootstrap_dir/$patch_file"
+        done
+        echo "Generated $patch_file with selected operators."
+
+        # Add the patch to the main kustomization.yaml
+        if ! grep -q "$patch_file" "$bootstrap_dir/$kustomization_file"; then
+            echo "Applying patch to $bootstrap_dir/$kustomization_file"
+            echo -e "
+resources:
+  - $patch_file" >> "$bootstrap_dir/$kustomization_file"
+        fi
+    else
+        echo "No operators selected. Skipping patch generation."
+    fi
 }
 
 
