@@ -1,0 +1,216 @@
+# Instance Type Configuration
+# This file defines available instance types and sizes for dynamic selection
+
+gpu_instances:
+  aws:
+    description: "AWS GPU Instance Types"
+    types:
+      - name: "g4dn.xlarge"
+        description: "1 x NVIDIA T4 (16GB), 4 vCPUs, 16GB RAM"
+        gpus: 1
+        gpu_type: "T4"
+        category: "entry"
+      - name: "g4dn.2xlarge"
+        description: "1 x NVIDIA T4 (16GB), 8 vCPUs, 32GB RAM"
+        gpus: 1
+        gpu_type: "T4"
+        category: "standard"
+      - name: "g4dn.4xlarge"
+        description: "1 x NVIDIA T4 (16GB), 16 vCPUs, 64GB RAM"
+        gpus: 1
+        gpu_type: "T4"
+        category: "standard"
+        default: true
+      - name: "g4dn.8xlarge"
+        description: "1 x NVIDIA T4 (16GB), 32 vCPUs, 128GB RAM"
+        gpus: 1
+        gpu_type: "T4"
+        category: "compute-optimized"
+      - name: "g4dn.12xlarge"
+        description: "4 x NVIDIA T4 (64GB total), 48 vCPUs, 192GB RAM"
+        gpus: 4
+        gpu_type: "T4"
+        category: "multi-gpu"
+      - name: "g5.xlarge"
+        description: "1 x NVIDIA A10G (24GB), 4 vCPUs, 16GB RAM"
+        gpus: 1
+        gpu_type: "A10G"
+        category: "entry"
+      - name: "g5.2xlarge"
+        description: "1 x NVIDIA A10G (24GB), 8 vCPUs, 32GB RAM"
+        gpus: 1
+        gpu_type: "A10G"
+        category: "standard"
+      - name: "g5.4xlarge"
+        description: "1 x NVIDIA A10G (24GB), 16 vCPUs, 64GB RAM"
+        gpus: 1
+        gpu_type: "A10G"
+        category: "standard"
+      - name: "g5.12xlarge"
+        description: "4 x NVIDIA A10G (96GB total), 48 vCPUs, 192GB RAM"
+        gpus: 4
+        gpu_type: "A10G"
+        category: "multi-gpu"
+      - name: "g5.48xlarge"
+        description: "8 x NVIDIA A10G (192GB total), 192 vCPUs, 768GB RAM"
+        gpus: 8
+        gpu_type: "A10G"
+        category: "high-performance"
+      - name: "p3.2xlarge"
+        description: "1 x NVIDIA V100 (16GB), 8 vCPUs, 61GB RAM"
+        gpus: 1
+        gpu_type: "V100"
+        category: "ml-optimized"
+      - name: "p3.8xlarge"
+        description: "4 x NVIDIA V100 (64GB total), 32 vCPUs, 244GB RAM"
+        gpus: 4
+        gpu_type: "V100"
+        category: "ml-optimized"
+      - name: "p4d.24xlarge"
+        description: "8 x NVIDIA A100 (320GB total), 96 vCPUs, 1152GB RAM"
+        gpus: 8
+        gpu_type: "A100"
+        category: "high-performance"
+        supports_mig: true
+      - name: "p5.48xlarge"
+        description: "8 x NVIDIA H100 (640GB total), 192 vCPUs, 2048GB RAM"
+        gpus: 8
+        gpu_type: "H100"
+        category: "cutting-edge"
+        supports_mig: true
+
+notebook_sizes:
+  description: "Jupyter Notebook Pod Sizes"
+  sizes:
+    - name: "Small"
+      description: "1 CPU, 8GB RAM - Suitable for data exploration"
+      resources:
+        requests:
+          cpu: "1"
+          memory: "8Gi"
+        limits:
+          cpu: "2"
+          memory: "8Gi"
+    - name: "Medium"
+      description: "3 CPUs, 24GB RAM - Suitable for model training"
+      resources:
+        requests:
+          cpu: "3"
+          memory: "24Gi"
+        limits:
+          cpu: "6"
+          memory: "24Gi"
+      default: true
+    - name: "Large"
+      description: "7 CPUs, 56GB RAM - Suitable for large datasets"
+      resources:
+        requests:
+          cpu: "7"
+          memory: "56Gi"
+        limits:
+          cpu: "14"
+          memory: "56Gi"
+    - name: "X Large"
+      description: "15 CPUs, 120GB RAM - Suitable for intensive workloads"
+      resources:
+        requests:
+          cpu: "15"
+          memory: "120Gi"
+        limits:
+          cpu: "30"
+          memory: "120Gi"
+    - name: "XX Large"
+      description: "31 CPUs, 248GB RAM - Maximum performance"
+      resources:
+        requests:
+          cpu: "31"
+          memory: "248Gi"
+        limits:
+          cpu: "62"
+          memory: "248Gi"
+
+model_server_sizes:
+  description: "Model Server Pod Sizes"
+  sizes:
+    - name: "Small"
+      description: "1 CPU, 4GB RAM - Small models"
+      resources:
+        requests:
+          cpu: "1"
+          memory: "4Gi"
+        limits:
+          cpu: "2"
+          memory: "8Gi"
+      default: true
+    - name: "Medium"
+      description: "4 CPUs, 8GB RAM - Medium models"
+      resources:
+        requests:
+          cpu: "4"
+          memory: "8Gi"
+        limits:
+          cpu: "8"
+          memory: "10Gi"
+    - name: "Large"
+      description: "6 CPUs, 16GB RAM - Large models"
+      resources:
+        requests:
+          cpu: "6"
+          memory: "16Gi"
+        limits:
+          cpu: "10"
+          memory: "20Gi"
+    - name: "X Large"
+      description: "12 CPUs, 32GB RAM - Very large models"
+      resources:
+        requests:
+          cpu: "12"
+          memory: "32Gi"
+        limits:
+          cpu: "24"
+          memory: "40Gi"
+
+autoscaling:
+  description: "Machine autoscaling configuration"
+  profiles:
+    - name: "disabled"
+      description: "No autoscaling"
+      min_replicas: 0
+      max_replicas: 0
+    - name: "conservative"
+      description: "Conservative autoscaling (0-2 machines)"
+      min_replicas: 0
+      max_replicas: 2
+    - name: "standard"
+      description: "Standard autoscaling (0-4 machines)"
+      min_replicas: 0
+      max_replicas: 4
+      default: true
+    - name: "aggressive"
+      description: "Aggressive autoscaling (1-8 machines)"
+      min_replicas: 1
+      max_replicas: 8
+    - name: "high-availability"
+      description: "High availability (2-10 machines)"
+      min_replicas: 2
+      max_replicas: 10
+
+notebook_pvc_sizes:
+  description: "Notebook Persistent Volume Claim sizes"
+  sizes:
+    - name: "small"
+      size: "10Gi"
+      description: "10GB storage"
+    - name: "medium"
+      size: "20Gi"
+      description: "20GB storage"
+      default: true
+    - name: "large"
+      size: "50Gi"
+      description: "50GB storage"
+    - name: "xlarge"
+      size: "100Gi"
+      description: "100GB storage"
+    - name: "xxlarge"
+      size: "200Gi"
+      description: "200GB storage"

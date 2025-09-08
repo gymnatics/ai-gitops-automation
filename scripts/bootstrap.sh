@@ -12,6 +12,7 @@ GITOPS_OVERLAY=components/operators/openshift-gitops/operator/overlays/latest/
 source "$(dirname "$0")/functions.sh"
 source "$(dirname "$0")/util.sh"
 source "$(dirname "$0")/command_flags.sh" "$@"
+source "$(dirname "$0")/dynamic_config.sh"
 
 apply_firmly(){
   if [ ! -f "${1}/kustomization.yaml" ]; then
@@ -65,21 +66,41 @@ bootstrap_cluster(){
   # Check if bootstrap_dir is already set
   if [ -n "$BOOTSTRAP_DIR" ]; then
     bootstrap_dir=$BOOTSTRAP_DIR
+    if [[ "$bootstrap_dir" == "dynamic" ]] && [[ "${USE_DYNAMIC}" == "true" ]]; then
+      # Apply dynamic config when using CLI flags
+      apply_dynamic_config
+    fi
     test -n "$base_dir/$bootstrap_dir";
     echo "Using bootstrap folder: $bootstrap_dir"
   else
     echo
-    PS3="Please enter a number to select a bootstrap folder: "
+    echo "Bootstrap Options:"
+    echo "1) Use existing overlay (aws-open-environment, composer-ai-lab, demo.redhat.com)"
+    echo "2) Create dynamic configuration (recommended)"
+    echo
+    read -p "Select option (1-2): " bootstrap_option
     
-    select bootstrap_dir in $(basename -a $base_dir/*/); 
-    do
-        test -n "$base_dir/$bootstrap_dir" && break;
-        echo ">>> Invalid Selection";
-    done
+    if [[ "$bootstrap_option" == "2" ]] || [[ "${USE_DYNAMIC}" == "true" ]]; then
+      # Run dynamic configuration
+      if [[ "$INTERACTIVE" != "false" ]] && [[ -z "${USE_DYNAMIC}" ]]; then
+        prompt_operator_versions
+        prompt_instance_types
+      fi
+      apply_dynamic_config
+      bootstrap_dir="dynamic"
+    else
+      PS3="Please enter a number to select a bootstrap folder: "
+      
+      select bootstrap_dir in $(basename -a $base_dir/*/); 
+      do
+          test -n "$base_dir/$bootstrap_dir" && break;
+          echo ">>> Invalid Selection";
+      done
 
-    echo
-    echo "Selected: ${bootstrap_dir}"
-    echo
+      echo
+      echo "Selected: ${bootstrap_dir}"
+      echo
+    fi
   fi
 
   check_branch
