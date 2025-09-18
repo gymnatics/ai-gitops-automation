@@ -1,15 +1,26 @@
-- op: replace
-  path: /spec/template/spec/containers/0/livenessProbe/httpGet/port
-  value: 8082
-- op: replace  
-  path: /spec/template/spec/containers/0/readinessProbe/httpGet/port
-  value: 8082
-- op: replace
-  path: /spec/template/spec/containers/0/startupProbe/httpGet/port  
-  value: 8082
-- op: add
-  path: /spec/template/spec/containers/0/ports
-  value:
-    - containerPort: 8082
-      name: grpc-health
-      protocol: TCP
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfd-master
+  namespace: openshift-nfd
+spec:
+  template:
+    spec:
+      containers:
+      - name: nfd-master
+        ports:
+        - containerPort: 8082
+          name: http
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8082
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8082
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8082
