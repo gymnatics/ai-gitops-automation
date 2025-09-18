@@ -109,6 +109,16 @@ bootstrap_cluster(){
   echo "Apply overlay to override default instance"
   kustomize build "${base_dir}/${bootstrap_dir}" | oc apply -f -
 
+
+  echo "Apply ArgoCD ApplicationSets to deploy operators"
+  oc apply -k components/argocd/apps/base/
+
+  # Apply the dynamic overlay patches to the ApplicationSets
+  if [[ "$bootstrap_dir" == "dynamic" ]]; then
+    echo "Applying dynamic patches to ApplicationSets"
+    oc patch applicationset cluster-operators -n openshift-gitops --type=merge --patch-file clusters/overlays/dynamic/patch-operators-list.yaml
+    oc patch applicationset cluster-operators -n openshift-gitops --type=json -p='[{"op": "replace", "path": "/spec/template/spec/source/repoURL", "value": "https://github.com/gymnatics/ai-gitops-automation.git"}, {"op": "replace", "path": "/spec/template/spec/source/targetRevision", "value": "main"}]'
+  fi
   wait_for_openshift_gitops
 
   echo

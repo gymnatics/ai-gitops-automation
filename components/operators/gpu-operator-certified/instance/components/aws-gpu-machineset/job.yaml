@@ -1,4 +1,3 @@
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -16,13 +15,13 @@ spec:
           image: registry.redhat.io/openshift4/ose-cli
           env:
             - name: INSTANCE_TYPE
-              value: "g5.2xlarge"
+              value: "g6.2xlarge"
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: REPLICAS
-              value: "4"
+              value: "2"
           command:
             - /bin/bash
             - -c
