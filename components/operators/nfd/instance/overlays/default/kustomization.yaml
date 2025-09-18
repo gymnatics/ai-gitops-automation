@@ -3,10 +3,3 @@ kind: Kustomization
 
 resources:
   - ../../base
-
-patches:
-  - target:
-      kind: Deployment
-      name: nfd-master
-      namespace: openshift-nfd
-    path: patch-nfd-master-port.yaml
