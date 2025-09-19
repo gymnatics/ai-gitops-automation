@@ -31,12 +31,12 @@ The bootstrap script now supports dynamic configuration of operator versions and
 
 ```bash
 # Basic dynamic configuration with GPU support
-./bootstrap.sh --dynamic --enable-gpu --gpu-instance=g4dn.4xlarge --gpu-replicas=2
+./bootstrap.sh --dynamic --enable-gpu --gpu-instance=g5.4xlarge --gpu-replicas=2
 
-# Full configuration with specific operator versions
+# Full configuration with stable OpenShift AI
 ./bootstrap.sh --non-interactive --dynamic \
   --gitops-version=latest \
-  --ai-version=stable-2.16 \
+  --ai-version=stable \
   --gpu-operator-version=v24.9 \
   --pipelines-version=stable \
   --serverless-version=stable \
