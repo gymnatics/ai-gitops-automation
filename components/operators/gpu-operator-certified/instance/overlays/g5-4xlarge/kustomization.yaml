@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+components:
+  - ../../components/aws-gpu-machineset
+
+patches:
+  - target:
+      kind: Job
+      name: job-aws-gpu-machineset
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: "g5.4xlarge"
+      - op: replace
+        path: /spec/template/spec/containers/0/env/2/value
+        value: "1"
