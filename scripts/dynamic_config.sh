@@ -121,17 +121,19 @@ create_operator_patches() {
     local elasticsearch_version="${ELASTICSEARCH_VERSION:-$(get_default_operator_version 'elasticsearch')}"
     local authorino_version="${AUTHORINO_VERSION:-$(get_default_operator_version 'authorino')}"
     
-    # Determine AI overlay based on GPU support
-    local ai_overlay="eus-2.16"
-    if [[ "${ENABLE_GPU}" == "true" ]]; then
-        ai_overlay="eus-2.16-nvidia-gpu"
+    # Determine AI overlay based on version and GPU support
+    local ai_overlay="${ai_version}"
+    
+    # Default to eus-2.16 if no version specified
+    if [[ -z "${ai_overlay}" ]] || [[ "${ai_overlay}" == "$(get_default_operator_version 'openshift-ai')" ]]; then
+        ai_overlay="eus-2.16"
     fi
     
-    # Override if specific version requested
-    if [[ "${ai_version}" != "eus-2.16" ]]; then
-        ai_overlay="${ai_version}"
-        if [[ "${ENABLE_GPU}" == "true" ]]; then
-            ai_overlay="${ai_version}-nvidia-gpu"
+    # Add GPU suffix if GPU is enabled
+    if [[ "${ENABLE_GPU}" == "true" ]]; then
+        # Check if overlay already has -nvidia-gpu suffix
+        if [[ "${ai_overlay}" != *"-nvidia-gpu" ]]; then
+            ai_overlay="${ai_overlay}-nvidia-gpu"
         fi
     fi
     
@@ -211,21 +213,40 @@ EOF
 
 # Function to create instance type patches
 create_instance_patches() {
-    local components_dir="components/operators"
+    local cluster_overlay_dir="clusters/overlays/dynamic"
     
     # GPU Instance configuration
     if [[ "${ENABLE_GPU}" == "true" ]] && [[ -n "${GPU_INSTANCE_TYPE}" ]]; then
         echo "🖥️  Configuring GPU instance type: ${GPU_INSTANCE_TYPE}"
         
-        # Update the GPU machineset job environment
-        local gpu_job_file="${components_dir}/gpu-operator-certified/instance/components/aws-gpu-machineset/job.yaml"
-        if [[ -f "${gpu_job_file}" ]]; then
-            yq eval -i ".spec.template.spec.containers[0].env[] |= (select(.name == \"INSTANCE_TYPE\").value = \"${GPU_INSTANCE_TYPE}\")" "${gpu_job_file}"
-            
-            # Update replicas if specified
-            if [[ -n "${GPU_REPLICAS}" ]]; then
-                yq eval -i ".spec.template.spec.containers[0].env[] |= (select(.name == \"REPLICAS\").value = \"${GPU_REPLICAS}\")" "${gpu_job_file}"
-            fi
+        # Create a patch for GPU instance configuration
+        cat > "${cluster_overlay_dir}/patch-gpu-machineset.yaml" <<EOF
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-aws-gpu-machineset
+  namespace: nvidia-gpu-operator
+spec:
+  template:
+    spec:
+      containers:
+      - name: job-aws-gpu-machineset
+        env:
+        - name: INSTANCE_TYPE
+          value: "${GPU_INSTANCE_TYPE}"
+        - name: REPLICAS
+          value: "${GPU_REPLICAS:-1}"
+EOF
+        
+        # Add the patch to kustomization if not already there
+        if ! grep -q "patch-gpu-machineset.yaml" "${cluster_overlay_dir}/kustomization.yaml"; then
+            cat >> "${cluster_overlay_dir}/kustomization.yaml" <<EOF
+- target:
+    kind: Job
+    name: job-aws-gpu-machineset
+    namespace: nvidia-gpu-operator
+  path: patch-gpu-machineset.yaml
+EOF
         fi
     fi
     
