@@ -1,0 +1,56 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  name: modelcar-runtime
+  namespace: anythingllm
+  labels:
+    opendatahub.io/dashboard: "true"
+  annotations:
+    opendatahub.io/template-display-name: "Model Car vLLM Runtime"
+    opendatahub.io/template-name: "modelcar-vllm"
+    opendatahub.io/accelerator-name: nvidia
+    openshift.io/display-name: "Model Car vLLM Runtime"
+spec:
+  supportedModelFormats:
+    - name: pytorch
+      version: "2"
+      autoSelect: true
+  
+  multiModel: false
+  
+  containers:
+    - name: kserve-container
+      image: quay.io/redhat-ai-services/vllm-openai-ubi9:0.5.3.post1
+      args:
+        - "--port=8080"
+        - "--model=/mnt/models/"
+        - "--served-model-name={{.Name}}"
+        - "--distributed-executor-backend=mp"
+        - "--dtype=auto"
+        - "--max-model-len=4096"
+      env:
+        - name: HF_HOME
+          value: /tmp/hf_home
+      resources:
+        requests:
+          cpu: 4
+          memory: 16Gi
+        limits:
+          cpu: 8
+          memory: 24Gi
+          nvidia.com/gpu: 1
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 60
+        periodSeconds: 30
+      ports:
+        - containerPort: 8080
+          protocol: TCP

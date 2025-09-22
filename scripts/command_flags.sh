@@ -23,6 +23,8 @@ function show_help {
   echo "  --gpu-replicas=<num>  Number of GPU nodes (default: 1)"
   echo "  --custom-notebook-sizes    Use custom notebook sizes"
   echo "  --custom-model-sizes       Use custom model server sizes"
+  echo "  --modelcar-model=<model>   Model to deploy from modelcar catalog (e.g., qwen3-8b)"
+  echo "  --enable-anythingllm       Enable AnythingLLM deployment"
   echo "  --help                Show this help message"
 }
 
@@ -129,6 +131,17 @@ do
     ;;
     --custom-model-sizes)
       export CUSTOM_MODEL_SIZES="true"
+      export USE_DYNAMIC="true"
+      shift
+    ;;
+    --modelcar-model=*)
+      export MODELCAR_MODEL="${arg#*=}"
+      export ENABLE_ANYTHINGLLM="true"
+      export USE_DYNAMIC="true"
+      shift
+    ;;
+    --enable-anythingllm)
+      export ENABLE_ANYTHINGLLM="true"
       export USE_DYNAMIC="true"
       shift
     ;;

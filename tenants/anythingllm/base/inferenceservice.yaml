@@ -1,0 +1,23 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llm-model
+  namespace: anythingllm
+  labels:
+    opendatahub.io/dashboard: "true"
+  annotations:
+    serving.kserve.io/deploymentMode: RawDeployment
+    # The model name will be replaced via kustomize patch
+    modelcar.model: "qwen3-8b"
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: pytorch
+      runtime: modelcar-runtime
+      # Model will be mounted from PVC populated by the download job
+      storageUri: pvc://model-storage-pvc/
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule

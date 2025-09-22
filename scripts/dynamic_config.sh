@@ -201,6 +201,12 @@ EOF
           name: openshift-servicemesh-operator
           path: components/operators/openshift-servicemesh/operator/overlays/${servicemesh_version}
 EOF
+
+    # Add AnythingLLM tenant if enabled
+    if [[ "${ENABLE_ANYTHINGLLM}" == "true" ]]; then
+        # Create tenant patch file
+        create_anythingllm_patches
+    fi
 }
 
 # Function to create instance type patches
@@ -266,6 +272,76 @@ create_model_server_sizes_patch() {
 EOF
     
     echo "${sizes}" | yq eval -P '.' - >> "${patch_file}"
+}
+
+# Function to create AnythingLLM patches
+create_anythingllm_patches() {
+    local model_name="${MODELCAR_MODEL:-qwen3-8b}"
+    local anythingllm_overlay_dir="tenants/anythingllm/overlays/dynamic"
+    
+    echo "🤖 Configuring AnythingLLM with model: ${model_name}"
+    
+    # Create overlay directory
+    mkdir -p "${anythingllm_overlay_dir}"
+    
+    # Create kustomization for dynamic overlay
+    cat > "${anythingllm_overlay_dir}/kustomization.yaml" <<EOF
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: anythingllm
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Job
+      name: model-download
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: quay.io/redhat-ai-services/modelcar-catalog:${model_name}
+  - target:
+      kind: InferenceService
+      name: llm-model
+    patch: |-
+      - op: replace
+        path: /metadata/annotations/modelcar.model
+        value: ${model_name}
+  - target:
+      kind: Notebook
+      name: anythingllm-workbench
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MODEL_NAME
+          value: ${model_name}
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MODEL_ENDPOINT
+          value: http://llm-model.anythingllm.svc.cluster.local:8080/v1
+EOF
+    
+    # Update tenants ApplicationSet patch to include AnythingLLM
+    local tenants_patch="clusters/overlays/dynamic/patch-tenants-list.yaml"
+    cat > "${tenants_patch}" <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tenants
+spec:
+  generators:
+  - list:
+      elements:
+      - cluster: local
+        url: https://kubernetes.default.svc
+        values:
+          name: anythingllm
+          path: tenants/anythingllm/overlays/dynamic
+EOF
 }
 
 # Function to prompt for operator versions
@@ -366,6 +442,37 @@ prompt_instance_types() {
         export CUSTOM_MODEL_SIZES="false"
     fi
     
+    # AnythingLLM deployment
+    echo
+    read -p "Deploy AnythingLLM with model serving? (y/N): " deploy_anythingllm
+    if [[ "${deploy_anythingllm,,}" == "y" ]]; then
+        export ENABLE_ANYTHINGLLM="true"
+        
+        # Model selection
+        echo
+        echo "Available models from modelcar catalog:"
+        echo "1) qwen3-8b"
+        echo "2) llama3.1-8b"
+        echo "3) mistral-7b"
+        echo "4) phi-3-mini"
+        echo "5) Custom (enter model tag)"
+        
+        read -p "Select model (1-5): " model_choice
+        case $model_choice in
+            1) export MODELCAR_MODEL="qwen3-8b" ;;
+            2) export MODELCAR_MODEL="llama3.1-8b" ;;
+            3) export MODELCAR_MODEL="mistral-7b" ;;
+            4) export MODELCAR_MODEL="phi-3-mini" ;;
+            5) 
+                read -p "Enter custom model tag: " custom_model
+                export MODELCAR_MODEL="${custom_model}"
+                ;;
+            *) export MODELCAR_MODEL="qwen3-8b" ;;
+        esac
+    else
+        export ENABLE_ANYTHINGLLM="false"
+    fi
+    
     echo
     echo "✅ Instance types configured"
 }
@@ -398,6 +505,10 @@ apply_dynamic_config() {
     fi
     echo "Custom Notebook Sizes: ${CUSTOM_NOTEBOOK_SIZES:-false}"
     echo "Custom Model Server Sizes: ${CUSTOM_MODEL_SIZES:-false}"
+    echo "AnythingLLM Enabled: ${ENABLE_ANYTHINGLLM:-false}"
+    if [[ "${ENABLE_ANYTHINGLLM}" == "true" ]]; then
+        echo "Model: ${MODELCAR_MODEL:-qwen3-8b}"
+    fi
     echo
     
     # Set bootstrap directory to dynamic

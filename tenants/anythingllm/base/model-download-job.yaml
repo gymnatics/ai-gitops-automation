@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: model-download
+  namespace: anythingllm
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      containers:
+      - name: model-downloader
+        image: quay.io/redhat-ai-services/modelcar-catalog:qwen3-8b
+        imagePullPolicy: Always
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            echo "Downloading model from modelcar catalog..."
+            # The modelcar image contains the model files
+            # We need to copy them to a PVC that the inference service can use
+            mkdir -p /mnt/models
+            cp -r /model/* /mnt/models/
+            echo "Model download complete"
+            ls -la /mnt/models/
+        volumeMounts:
+        - name: model-storage
+          mountPath: /mnt/models
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-storage-pvc
+      restartPolicy: Never
+  backoffLimit: 3

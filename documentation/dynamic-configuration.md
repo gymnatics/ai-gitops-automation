@@ -9,7 +9,8 @@ The dynamic configuration feature allows you to:
 1. **Select specific operator versions** - Choose from multiple available versions for each operator
 2. **Configure GPU support** - Enable GPU nodes with specific instance types and quantities
 3. **Customize pod sizes** - Define custom resource requirements for notebooks and model servers
-4. **Automate deployment** - Use CLI flags for fully automated, reproducible deployments
+4. **Deploy AnythingLLM** - Deploy AnythingLLM workbench with model serving from Model Car catalog
+5. **Automate deployment** - Use CLI flags for fully automated, reproducible deployments
 
 ## Interactive Mode
 
@@ -270,6 +271,39 @@ oc get csv -A | grep -E '(gitops|openshift-ai|gpu|nfd|pipelines|serverless|servi
   --custom-notebook-sizes \
   --custom-model-sizes
 ```
+
+### AnythingLLM Deployment
+```bash
+./bootstrap.sh --non-interactive --dynamic \
+  --ai-version=eus-2.16 \
+  --enable-gpu \
+  --gpu-instance=g5.4xlarge \
+  --enable-anythingllm \
+  --modelcar-model=llama3.1-8b
+```
+
+## AnythingLLM Configuration
+
+When AnythingLLM is enabled, the following components are deployed:
+
+1. **AnythingLLM Workbench** - A Jupyter notebook environment for AnythingLLM
+2. **Model Server** - vLLM-based inference service
+3. **Model Storage** - Persistent storage for models from the Model Car catalog
+
+### Available Models
+
+Models are sourced from `quay.io/redhat-ai-services/modelcar-catalog`:
+
+- `qwen3-8b` - Qwen 3 8B model
+- `llama3.1-8b` - Llama 3.1 8B model
+- `mistral-7b` - Mistral 7B model
+- `phi-3-mini` - Microsoft Phi-3 Mini model
+- Custom models available in the catalog
+
+### Command Line Options
+
+- `--enable-anythingllm` - Enable AnythingLLM deployment
+- `--modelcar-model=<model>` - Specify model tag from the catalog (default: qwen3-8b)
 
 ## Contributing
 

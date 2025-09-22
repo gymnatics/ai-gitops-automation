@@ -1,0 +1,52 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  name: anythingllm-workbench
+  namespace: anythingllm
+  labels:
+    app: anythingllm
+    opendatahub.io/dashboard: "true"
+  annotations:
+    notebooks.opendatahub.io/inject-oauth: "true"
+    notebooks.opendatahub.io/oauth-logout-url: "https://rhods-dashboard-redhat-ods-applications.apps.cluster.example.com"
+    opendatahub.io/username: "admin"
+spec:
+  template:
+    spec:
+      containers:
+        - name: anythingllm-workbench
+          # AnythingLLM notebook image - this should be replaced with the actual AnythingLLM image
+          image: quay.io/modh/odh-generic-data-science-notebook:v2-2024a-20240523
+          imagePullPolicy: Always
+          workingDir: /opt/app-root/src
+          env:
+            - name: NOTEBOOK_ARGS
+              value: "--ServerApp.port=8888 --ServerApp.token='' --ServerApp.password='' --ServerApp.base_url=/notebook/anythingllm/anythingllm-workbench --ServerApp.quit_button=False"
+            - name: JUPYTER_IMAGE
+              value: "quay.io/modh/odh-generic-data-science-notebook:v2-2024a-20240523"
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "2"
+              memory: "8Gi"
+            limits:
+              cpu: "4"
+              memory: "16Gi"
+          volumeMounts:
+            - mountPath: /opt/app-root/src
+              name: anythingllm-workbench
+            - mountPath: /dev/shm
+              name: shm
+      volumes:
+        - name: anythingllm-workbench
+          persistentVolumeClaim:
+            claimName: anythingllm-workbench-pvc
+        - name: shm
+          emptyDir:
+            medium: Memory
+      tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists

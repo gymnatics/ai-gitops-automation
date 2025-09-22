@@ -118,6 +118,12 @@ bootstrap_cluster(){
     echo "Applying dynamic patches to ApplicationSets"
     oc patch applicationset cluster-operators -n openshift-gitops --type=merge --patch-file clusters/overlays/dynamic/patch-operators-list.yaml
     oc patch applicationset cluster-operators -n openshift-gitops --type=json -p='[{"op": "replace", "path": "/spec/template/spec/source/repoURL", "value": "https://github.com/gymnatics/ai-gitops-automation.git"}, {"op": "replace", "path": "/spec/template/spec/source/targetRevision", "value": "main"}]'
+    
+    # Apply AnythingLLM tenant patch if enabled
+    if [[ "${ENABLE_ANYTHINGLLM}" == "true" ]] && [[ -f "clusters/overlays/dynamic/patch-tenants-list.yaml" ]]; then
+      echo "Applying AnythingLLM tenant patch"
+      oc patch applicationset tenants -n openshift-gitops --type=merge --patch-file clusters/overlays/dynamic/patch-tenants-list.yaml
+    fi
   fi
   wait_for_openshift_gitops
 

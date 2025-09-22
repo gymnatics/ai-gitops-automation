@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: anythingllm
+  labels:
+    opendatahub.io/dashboard: "true"
+    modelmesh-enabled: "true"
+  annotations:
+    openshift.io/description: "AnythingLLM application with model serving"
+    openshift.io/display-name: "AnythingLLM"
