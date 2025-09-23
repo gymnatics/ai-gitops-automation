@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: cluster-config
   source:
-    path: patch-me-see-overlays
+    path: clusters/overlays/dynamic
     repoURL: https://github.com/gymnatics/ai-gitops-automation.git # Update me on fork
     targetRevision: main
   syncPolicy:

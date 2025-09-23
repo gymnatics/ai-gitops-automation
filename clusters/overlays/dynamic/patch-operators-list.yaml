@@ -44,20 +44,10 @@ spec:
       - cluster: local
         url: https://kubernetes.default.svc
         values:
-          name: openshift-serverless-operator
-          path: components/operators/openshift-serverless/operator/overlays/stable
+          name: openshift-serverless
+          path: components/operators/openshift-serverless/aggregate/overlays/default
       - cluster: local
         url: https://kubernetes.default.svc
         values:
-          name: openshift-servicemesh-operator
-          path: components/operators/openshift-servicemesh/operator/overlays/stable
-      - cluster: local
-        url: https://kubernetes.default.svc
-        values:
-          name: openshift-servicemesh-instance
-          path: components/operators/openshift-servicemesh/instance/overlays/default
-      - cluster: local
-        url: https://kubernetes.default.svc
-        values:
-          name: knative-serving-instance
-          path: components/operators/openshift-serverless/instance/knative-serving/overlays/default
+          name: openshift-servicemesh
+          path: components/operators/openshift-servicemesh/aggregate/overlays/default

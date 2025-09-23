@@ -18,3 +18,7 @@ patches:
     kind: ApplicationSet
     name: cluster-operators
   path: patch-operators-list.yaml
+- target:
+    kind: ApplicationSet
+    name: tenants
+  path: patch-tenants-list.yaml
