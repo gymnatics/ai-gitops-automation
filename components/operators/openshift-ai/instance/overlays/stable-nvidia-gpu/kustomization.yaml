@@ -13,3 +13,4 @@ components:
   - ../../components/model-server-pod-sizes
   - ../../components/nvidia-gpu-accelerator-profile
   - ../../components/make-kubeadmin-cluster-admin
+  - ../../components/rhods-admins-group

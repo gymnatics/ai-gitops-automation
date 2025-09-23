@@ -2,6 +2,8 @@
 
 This document provides solutions for common issues encountered when deploying AnythingLLM and models on OpenShift AI using OpenShift GitOps.
 
+> **Note**: Most issues described below have been permanently fixed in the codebase. This document is kept for reference and understanding of the solutions implemented.
+
 ## Common Issues and Solutions
 
 ### 1. OpenShift AI Operator Sync Issues

@@ -12,4 +12,3 @@ resources:
   - namespace.yaml
   - odhdashboardconfig.yaml
   - rhods-role-binding.yaml
-  - kubeadmin-cluster-admin.yaml
