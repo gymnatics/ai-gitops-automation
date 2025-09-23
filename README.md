@@ -20,6 +20,15 @@ Installation can be done using `./bootstrap.sh` script.
 > [!TIP]  
 > First time installs it is recommended to allow the script to walk through options, but future runs can be automated using cli flags, run `./bootstrap.sh --help` for more information.
 
+#### Interactive Mode
+
+Run `./bootstrap.sh` without any flags to enter interactive mode, which will guide you through:
+- Cluster overlay selection (or dynamic configuration)
+- Operator version selection
+- GPU configuration options
+- AnythingLLM deployment
+- Custom sizing options
+
 #### Dynamic Configuration (New!)
 
 The bootstrap script now supports dynamic configuration of operator versions and instance types. You can either:
@@ -46,6 +55,14 @@ The bootstrap script now supports dynamic configuration of operator versions and
   --gpu-replicas=3 \
   --custom-notebook-sizes \
   --custom-model-sizes
+
+# Deploy with AnythingLLM and ModelCar
+./bootstrap.sh --non-interactive --dynamic \
+  --ai-version=stable \
+  --enable-gpu \
+  --gpu-instance=g5.4xlarge \
+  --enable-anythingllm \
+  --modelcar-model=llama3.1-8b
 ```
 
 ##### Available Options
@@ -67,6 +84,10 @@ The bootstrap script now supports dynamic configuration of operator versions and
 **Instance Sizes:**
 - `--custom-notebook-sizes`: Use custom notebook pod sizes
 - `--custom-model-sizes`: Use custom model server pod sizes
+
+**AnythingLLM Configuration:**
+- `--enable-anythingllm`: Deploy AnythingLLM tenant application
+- `--modelcar-model`: ModelCar model to use (llama3-8b, llama3.1-8b, mistral-7b, etc.)
 
 ## Additional Documentation and Info
 
@@ -97,3 +118,16 @@ The bootstrap script now supports dynamic configuration of operator versions and
 ### Tenants
 
 * [Tenant Examples](tenants/)
+* [AnythingLLM](tenants/anythingllm/) - RAG application with GPU-accelerated LLM inference
+
+## Utility Scripts
+
+The `scripts/` directory contains various utility scripts for cluster management:
+
+* `verify-bootstrap.sh` - Verify GitOps installation and application status
+* `check-cluster-status.sh` - Comprehensive cluster status check
+* `check-and-fix-cluster.sh` - Automatically fix common cluster issues
+* `fix-gitops-console-job.sh` - Fix GitOps console plugin job issues
+* `fix-dynamic-config-issues.sh` - Fix dynamic configuration issues
+* `fix-and-test-cluster.sh` - Combined fix and test script
+* `test-fix.sh` - Test fixes after applying
