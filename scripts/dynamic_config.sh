@@ -163,9 +163,9 @@ create_operator_patches() {
     # Determine AI overlay based on version and GPU support
     local ai_overlay="${ai_version}"
     
-    # Default to eus-2.16 if no version specified
-    if [[ -z "${ai_overlay}" ]] || [[ "${ai_overlay}" == "$(get_default_operator_version 'openshift-ai')" ]]; then
-        ai_overlay="eus-2.16"
+    # Use the actual version provided (don't override stable with eus-2.16)
+    if [[ -z "${ai_overlay}" ]]; then
+        ai_overlay="$(get_default_operator_version 'openshift-ai')"
     fi
     
     # Add GPU suffix if GPU is enabled
