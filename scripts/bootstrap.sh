@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+=======
+is_gitops_installed() {
+  # Returns 0 if GitOps operator CSV is Succeeded
+  oc get csv -n openshift-operators 2>/dev/null | grep -q "openshift-gitops-operator.*Succeeded" && return 0
+  oc get csv -n openshift-gitops 2>/dev/null | grep -q "openshift-gitops-operator.*Succeeded" && return 0
+  return 1
+}
+
+>>>>>>> 92ac872 (Apply OpenShift AI + GitOps bootstrap fixes: skip duplicate GitOps install, Argo Job Replace, DSC/Dashboard sync safeguards)
 #!/bin/bash
 set -e
 
@@ -31,6 +41,15 @@ apply_firmly(){
 
 
 install_gitops(){
+<<<<<<< HEAD
+=======
+  if is_gitops_installed; then
+    echo "OpenShift GitOps already installed. Skipping installation."
+    export GITOPS_VERSION="installed"
+    return 0
+  fi
+
+>>>>>>> 92ac872 (Apply OpenShift AI + GitOps bootstrap fixes: skip duplicate GitOps install, Argo Job Replace, DSC/Dashboard sync safeguards)
   echo
   echo "Checking if GitOps Operator is already installed and running"
 
