@@ -124,6 +124,7 @@ The bootstrap script now supports dynamic configuration of operator versions and
 
 The `scripts/` directory contains various utility scripts for cluster management:
 
+### Verification and Fixes
 * `verify-bootstrap.sh` - Verify GitOps installation and application status
 * `check-cluster-status.sh` - Comprehensive cluster status check
 * `check-and-fix-cluster.sh` - Automatically fix common cluster issues
@@ -131,3 +132,10 @@ The `scripts/` directory contains various utility scripts for cluster management
 * `fix-dynamic-config-issues.sh` - Fix dynamic configuration issues
 * `fix-and-test-cluster.sh` - Combined fix and test script
 * `test-fix.sh` - Test fixes after applying
+
+### Cleanup Scripts
+* `pre-cleanup-check.sh` - Show what would be removed before cleanup
+* `cleanup-cluster.sh` - Remove all GitOps-managed resources and return cluster to bare state
+
+> [!WARNING]  
+> The cleanup script will remove ALL installed operators, applications, and configurations. Use with caution!
