@@ -106,9 +106,48 @@ EOF
     cp clusters/overlays/aws-open-environment/patch-applicationset-manual-sync.yaml "${cluster_overlay_dir}/"
 }
 
+# Function to check for existing operators
+check_existing_operators() {
+    echo "Checking for existing operators..."
+    EXISTING_OPERATORS=()
+    
+    # Check for GitOps
+    if oc get csv -n openshift-gitops-operator 2>/dev/null | grep -q "openshift-gitops-operator.*Succeeded"; then
+        echo "  ✓ GitOps operator already installed"
+        EXISTING_OPERATORS+=("openshift-gitops-operator")
+    fi
+    
+    # Check for OpenShift AI
+    if oc get csv -n redhat-ods-operator 2>/dev/null | grep -q "rhods-operator.*Succeeded"; then
+        echo "  ✓ OpenShift AI operator already installed"
+        EXISTING_OPERATORS+=("openshift-ai-operator")
+    fi
+    
+    # Check for Pipelines
+    if oc get csv -n openshift-pipelines-operator-rh 2>/dev/null | grep -q "openshift-pipelines.*Succeeded"; then
+        echo "  ✓ Pipelines operator already installed"
+        EXISTING_OPERATORS+=("openshift-pipelines-operator")
+    fi
+    
+    # Check for Service Mesh
+    if oc get csv -n openshift-operators 2>/dev/null | grep -q "servicemesh.*Succeeded"; then
+        echo "  ✓ Service Mesh operator already installed"
+        EXISTING_OPERATORS+=("openshift-servicemesh")
+    fi
+    
+    # Check for Serverless
+    if oc get csv -n openshift-serverless 2>/dev/null | grep -q "serverless-operator.*Succeeded"; then
+        echo "  ✓ Serverless operator already installed"
+        EXISTING_OPERATORS+=("openshift-serverless")
+    fi
+}
+
 # Function to create operator patches
 create_operator_patches() {
     local cluster_overlay_dir="clusters/overlays/dynamic"
+    
+    # Check for existing operators first
+    check_existing_operators
     
     # Get operator versions from environment or use defaults
     local gitops_version="${GITOPS_VERSION:-$(get_default_operator_version 'openshift-gitops')}"
@@ -175,34 +214,56 @@ EOF
 EOF
     fi
     
-    # Continue with other operators
-    cat >> "${cluster_overlay_dir}/patch-operators-list.yaml" <<EOF
+    # Continue with other operators (skip if already installed)
+    if [[ ! " ${EXISTING_OPERATORS[@]} " =~ " openshift-ai-operator " ]]; then
+        cat >> "${cluster_overlay_dir}/patch-operators-list.yaml" <<EOF
       - cluster: local
         url: https://kubernetes.default.svc
         values:
           name: openshift-ai-operator
           path: components/operators/openshift-ai/aggregate/overlays/${ai_overlay}
+EOF
+    fi
+    
+    if [[ ! " ${EXISTING_OPERATORS[@]} " =~ " openshift-gitops-operator " ]]; then
+        cat >> "${cluster_overlay_dir}/patch-operators-list.yaml" <<EOF
       - cluster: local
         url: https://kubernetes.default.svc
         values:
           name: openshift-gitops-operator
           path: components/operators/openshift-gitops/aggregate/overlays/default
+EOF
+    fi
+    
+    if [[ ! " ${EXISTING_OPERATORS[@]} " =~ " openshift-pipelines-operator " ]]; then
+        cat >> "${cluster_overlay_dir}/patch-operators-list.yaml" <<EOF
       - cluster: local
         url: https://kubernetes.default.svc
         values:
           name: openshift-pipelines-operator
           path: components/operators/openshift-pipelines/operator/overlays/${pipelines_version}
+EOF
+    fi
+    
+    if [[ ! " ${EXISTING_OPERATORS[@]} " =~ " openshift-serverless " ]]; then
+        cat >> "${cluster_overlay_dir}/patch-operators-list.yaml" <<EOF
       - cluster: local
         url: https://kubernetes.default.svc
         values:
           name: openshift-serverless-operator
           path: components/operators/openshift-serverless/operator/overlays/${serverless_version}
+EOF
+    fi
+    
+    if [[ ! " ${EXISTING_OPERATORS[@]} " =~ " openshift-servicemesh " ]]; then
+        cat >> "${cluster_overlay_dir}/patch-operators-list.yaml" <<EOF
       - cluster: local
         url: https://kubernetes.default.svc
         values:
           name: openshift-servicemesh-operator
           path: components/operators/openshift-servicemesh/operator/overlays/${servicemesh_version}
 EOF
+    fi
 
     # Add AnythingLLM tenant if enabled
     if [[ "${ENABLE_ANYTHINGLLM}" == "true" ]]; then

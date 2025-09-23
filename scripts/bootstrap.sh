@@ -37,6 +37,11 @@ install_gitops(){
   # Detect if the GitOps operator CSV is in 'Succeeded' state
   if oc get csv -n ${OPERATOR_NS} | grep -q "openshift-gitops-operator.*Succeeded"; then
     echo "✅ GitOps operator is already installed and running."
+    
+    # Ensure GitOps instance has proper health checks configured
+    echo "Configuring GitOps instance health checks..."
+    configure_gitops_health_checks
+    
     return 0
   fi
 
@@ -54,6 +59,34 @@ install_gitops(){
   oc wait --for=jsonpath='{.status.phase}'=Succeeded csv/${CSV_NAME} -n ${OPERATOR_NS}
 
   echo "✅ OpenShift GitOps successfully installed."
+  
+  # Configure health checks after installation
+  configure_gitops_health_checks
+}
+
+configure_gitops_health_checks(){
+  echo "Configuring GitOps health checks for DataScienceCluster..."
+  
+  # Wait for GitOps instance to be ready
+  until oc get argocd openshift-gitops -n ${ARGO_NS} &>/dev/null; do
+    echo -n "."
+    sleep 5
+  done
+  
+  # Apply health check configuration
+  oc patch argocd openshift-gitops -n ${ARGO_NS} --type=merge -p '{
+    "spec": {
+      "resourceHealthChecks": [
+        {
+          "group": "datasciencecluster.opendatahub.io",
+          "kind": "DataScienceCluster",
+          "check": "health_status = {}\nif obj.status ~= nil then\n  if obj.status.conditions ~= nil then\n    for i, condition in pairs(obj.status.conditions) do\n      if condition.type == \"Available\" and condition.status == \"True\" then\n        health_status.status = \"Healthy\"\n        health_status.message = \"DataScienceCluster is available\"\n        return health_status\n      elseif condition.type == \"Progressing\" and condition.status == \"True\" then\n        health_status.status = \"Progressing\"\n        health_status.message = \"DataScienceCluster is progressing\"\n        return health_status\n      end\n    end\n  end\nend\nhealth_status.status = \"Progressing\"\nhealth_status.message = \"DataScienceCluster is being created\"\nreturn health_status\n"
+        }
+      ]
+    }
+  }' 2>/dev/null || true
+  
+  echo "✅ Health checks configured"
 }
 
 

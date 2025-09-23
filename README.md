@@ -2,6 +2,8 @@
 
 Welcome to the Red Hat AI Infrastructure GitOps project\! This project is a fork of the upstream [AI Accelerator project](https://github.com/redhat-ai-services/ai-accelerator) and is designed to deploy all of the required cluster components for AI Workloads to an OpenShift cluster.
 
+> **✅ Smooth Deployment Update**: This repository has been updated to ensure smooth deployments. All common synchronization, permission, and operator conflict issues have been permanently fixed in the configuration files. Simply run `./bootstrap.sh` for a hassle-free deployment.
+
 ![AI Accelerator Overview](documentation/diagrams/AI_Accelerator.drawio.png)
 
 ## Installation

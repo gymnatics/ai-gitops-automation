@@ -2,6 +2,9 @@ apiVersion: datasciencecluster.opendatahub.io/v1
 kind: DataScienceCluster
 metadata:
   name: default
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Validate=false
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   components:
     dashboard:

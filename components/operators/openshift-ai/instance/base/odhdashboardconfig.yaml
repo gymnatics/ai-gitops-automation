@@ -3,7 +3,8 @@ kind: OdhDashboardConfig
 metadata:
   name: odh-dashboard-config
   annotations:
-    argocd.argoproj.io/sync-options: ServerSideApply=true
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Validate=false
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   dashboardConfig:
     disableInfo: false
@@ -69,7 +70,7 @@ spec:
   notebookController:
     pvcSize: 20Gi
   groupsConfig:
-    adminGroups: rhods-admins
+    adminGroups: rhods-admins,cluster-admins
     allowedGroups: "system:authenticated"
   notebooks:
     enabled: true

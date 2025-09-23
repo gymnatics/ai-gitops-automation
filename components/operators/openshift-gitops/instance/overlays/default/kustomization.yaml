@@ -13,3 +13,4 @@ components:
   - ../../components/gitops-admins
   - ../../components/health-check-olm
   - ../../components/health-check-openshift-builds
+  - ../../components/health-check-openshift-ai
