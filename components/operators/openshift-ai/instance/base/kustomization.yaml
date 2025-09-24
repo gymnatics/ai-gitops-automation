@@ -3,13 +3,11 @@ kind: Kustomization
 
 namespace: redhat-ods-applications
 
-commonAnnotations:
-  argocd.argoproj.io/sync-wave: "1"
-
 resources:
   - datasciencecluster.yaml
   - dsc-init.yaml
   - namespace.yaml
   - odhdashboardconfig.yaml
   - rhods-role-binding.yaml
+  - wait-for-operators-job.yaml
   - wait-for-crds-job.yaml

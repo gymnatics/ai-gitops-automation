@@ -19,6 +19,22 @@ rules:
     verbs:
       - get
       - list
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - namespaces
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - clusterserviceversions
+      - subscriptions
+    verbs:
+      - get
+      - list
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -53,7 +69,29 @@ spec:
             - /bin/bash
             - -c
             - |
-              echo "Waiting for OpenShift AI CRDs to be available..."
+              echo "Waiting for OpenShift AI operator to be ready..."
+              
+              # First wait for the operator namespace
+              until oc get namespace redhat-ods-operator &>/dev/null; do
+                echo "Waiting for redhat-ods-operator namespace..."
+                sleep 5
+              done
+              
+              # Wait for the operator CSV to be succeeded
+              echo "Waiting for OpenShift AI operator to be ready..."
+              until oc get csv -n redhat-ods-operator | grep -E "rhods-operator.*Succeeded" &>/dev/null; do
+                echo "Waiting for OpenShift AI operator CSV to succeed..."
+                sleep 10
+              done
+              
+              # Wait for operator pod to be running
+              echo "Waiting for operator pod to be running..."
+              until oc get pods -n redhat-ods-operator -l name=rhods-operator --field-selector=status.phase=Running | grep -q Running; do
+                echo "Waiting for operator pod to be in Running state..."
+                sleep 10
+              done
+              
+              echo "Operator is running. Waiting for CRDs to be created..."
               
               # List of required CRDs
               REQUIRED_CRDS=(
@@ -63,12 +101,21 @@ spec:
                 "acceleratorprofiles.dashboard.opendatahub.io"
               )
               
-              # Wait for each CRD
+              # Wait for each CRD with timeout
               for crd in "${REQUIRED_CRDS[@]}"; do
                 echo "Checking for CRD: $crd"
+                ATTEMPTS=0
+                MAX_ATTEMPTS=30
                 until oc get crd "$crd" &>/dev/null; do
-                  echo "Waiting for CRD $crd to be created..."
+                  echo "Waiting for CRD $crd to be created... (attempt $ATTEMPTS/$MAX_ATTEMPTS)"
                   sleep 10
+                  ATTEMPTS=$((ATTEMPTS + 1))
+                  if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
+                    echo "ERROR: Timeout waiting for CRD $crd"
+                    echo "Checking operator logs:"
+                    oc logs -n redhat-ods-operator -l name=rhods-operator --tail=50
+                    exit 1
+                  fi
                 done
                 echo "✓ CRD $crd is available"
               done

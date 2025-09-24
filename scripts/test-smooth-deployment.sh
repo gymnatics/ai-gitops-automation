@@ -88,6 +88,7 @@ run_test "GitOps console job has Replace option" "grep -q 'Replace=true' compone
 
 # Check wait mechanisms
 run_test "Service Mesh wait component exists" "[ -d components/operators/openshift-ai/instance/components/wait-for-servicemesh ]"
+run_test "Operators wait job exists" "[ -f components/operators/openshift-ai/instance/base/wait-for-operators-job.yaml ]"
 run_test "CRDs wait job exists" "[ -f components/operators/openshift-ai/instance/base/wait-for-crds-job.yaml ]"
 
 # Check health check components

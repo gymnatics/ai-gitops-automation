@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wait-for-operators
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wait-for-operators
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+rules:
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - clusterserviceversions
+      - subscriptions
+      - operatorgroups
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: wait-for-operators
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+subjects:
+  - kind: ServiceAccount
+    name: wait-for-operators
+    namespace: redhat-ods-applications
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wait-for-operators
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wait-for-operators
+  annotations:
+    argocd.argoproj.io/sync-wave: "13"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: wait
+          image: registry.redhat.io/openshift4/ose-cli:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Waiting for required operators to be ready..."
+              
+              # Define required operators with their namespace and CSV pattern
+              declare -A OPERATORS=(
+                ["openshift-operators"]="elasticsearch-operator"
+                ["openshift-operators"]="servicemeshoperator"
+                ["openshift-serverless"]="serverless-operator"
+                ["redhat-ods-operator"]="rhods-operator"
+              )
+              
+              # Check Service Mesh operator specifically
+              echo "Checking Service Mesh operator..."
+              until oc get csv -n openshift-operators | grep -E "servicemeshoperator.*Succeeded" &>/dev/null; do
+                echo "Waiting for Service Mesh operator to be ready..."
+                sleep 10
+              done
+              echo "✓ Service Mesh operator is ready"
+              
+              # Check Serverless operator
+              echo "Checking Serverless operator..."
+              until oc get csv -n openshift-serverless | grep -E "serverless-operator.*Succeeded" &>/dev/null; do
+                echo "Waiting for Serverless operator to be ready..."
+                sleep 10
+              done
+              echo "✓ Serverless operator is ready"
+              
+              # Check Elasticsearch operator
+              echo "Checking Elasticsearch operator..."
+              until oc get csv -n openshift-operators-redhat | grep -E "elasticsearch-operator.*Succeeded" &>/dev/null; do
+                echo "Waiting for Elasticsearch operator to be ready..."
+                sleep 10
+              done
+              echo "✓ Elasticsearch operator is ready"
+              
+              echo "All dependency operators are ready!"
+      restartPolicy: Never
+      serviceAccount: wait-for-operators
+      serviceAccountName: wait-for-operators
+  backoffLimit: 4

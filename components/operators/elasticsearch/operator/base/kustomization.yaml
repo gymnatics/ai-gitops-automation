@@ -3,6 +3,9 @@ kind: Kustomization
 
 namespace: elasticsearch-operator
 
+commonAnnotations:
+  argocd.argoproj.io/sync-wave: "-9"
+
 resources:
   - namespace.yaml
   - operator-group.yaml
