@@ -86,11 +86,13 @@ run_test "ODH Dashboard has sync annotations" "grep -q 'ServerSideApply=true' co
 # Check GitOps console job
 run_test "GitOps console job has Replace option" "grep -q 'Replace=true' components/operators/openshift-gitops/operator/components/enable-console-plugin/console-plugin-job.yaml"
 
-# Check kubeadmin cluster-admin
-run_test "Kubeadmin cluster-admin file exists" "[ -f components/operators/openshift-ai/instance/base/kubeadmin-cluster-admin.yaml ]"
+# Check wait mechanisms
+run_test "Service Mesh wait job exists" "[ -f components/operators/openshift-ai/instance/base/wait-for-servicemesh-job.yaml ]"
+run_test "CRDs wait job exists" "[ -f components/operators/openshift-ai/instance/base/wait-for-crds-job.yaml ]"
 
-# Check health check component
+# Check health check components
 run_test "OpenShift AI health check in GitOps" "grep -q 'health-check-openshift-ai' components/operators/openshift-gitops/instance/overlays/default/kustomization.yaml"
+run_test "Service Mesh health check in GitOps" "grep -q 'health-check-servicemesh' components/operators/openshift-gitops/instance/overlays/default/kustomization.yaml"
 
 echo ""
 echo "Bootstrap Function Checks"

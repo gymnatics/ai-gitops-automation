@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wait-for-servicemesh
+  annotations:
+    argocd.argoproj.io/sync-wave: "18"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wait-for-servicemesh
+  annotations:
+    argocd.argoproj.io/sync-wave: "18"
+rules:
+  - apiGroups:
+      - maistra.io
+    resources:
+      - servicemeshcontrolplanes
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: wait-for-servicemesh
+  annotations:
+    argocd.argoproj.io/sync-wave: "18"
+subjects:
+  - kind: ServiceAccount
+    name: wait-for-servicemesh
+    namespace: redhat-ods-applications
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wait-for-servicemesh
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wait-for-servicemesh
+  annotations:
+    argocd.argoproj.io/sync-wave: "19"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: wait
+          image: registry.redhat.io/openshift4/ose-cli:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Waiting for Service Mesh Control Plane to be ready..."
+              
+              # Wait for namespace to exist
+              until oc get namespace istio-system &>/dev/null; do
+                echo "Waiting for istio-system namespace..."
+                sleep 10
+              done
+              
+              # Wait for ServiceMeshControlPlane to exist
+              until oc get smcp data-science-smcp -n istio-system &>/dev/null; do
+                echo "Waiting for Service Mesh Control Plane to be created..."
+                sleep 10
+              done
+              
+              # Wait for ServiceMeshControlPlane to be ready
+              while true; do
+                READY=$(oc get smcp data-science-smcp -n istio-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "False")
+                if [ "$READY" == "True" ]; then
+                  echo "Service Mesh Control Plane is ready!"
+                  break
+                fi
+                echo "Service Mesh Control Plane not ready yet (status: $READY), waiting..."
+                sleep 15
+              done
+              
+              echo "Service Mesh is fully ready. DSCInitialization can proceed."
+      restartPolicy: Never
+      serviceAccount: wait-for-servicemesh
+      serviceAccountName: wait-for-servicemesh
+  backoffLimit: 4

@@ -14,3 +14,4 @@ components:
   - ../../components/health-check-olm
   - ../../components/health-check-openshift-builds
   - ../../components/health-check-openshift-ai
+  - ../../components/health-check-servicemesh

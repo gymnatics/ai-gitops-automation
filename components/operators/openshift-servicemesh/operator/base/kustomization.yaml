@@ -4,5 +4,8 @@ kind: Kustomization
 
 namespace: openshift-operators
 
+commonAnnotations:
+  argocd.argoproj.io/sync-wave: "-10"
+
 resources:
   - subscription.yaml

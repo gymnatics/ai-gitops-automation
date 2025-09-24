@@ -12,3 +12,5 @@ resources:
   - namespace.yaml
   - odhdashboardconfig.yaml
   - rhods-role-binding.yaml
+  - wait-for-servicemesh-job.yaml
+  - wait-for-crds-job.yaml

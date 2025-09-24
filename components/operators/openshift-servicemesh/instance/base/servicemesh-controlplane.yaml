@@ -1,7 +1,10 @@
 apiVersion: maistra.io/v2
 kind: ServiceMeshControlPlane
 metadata:
-  name: istio-system
+  name: data-science-smcp
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   tracing:
     sampling: 10000
