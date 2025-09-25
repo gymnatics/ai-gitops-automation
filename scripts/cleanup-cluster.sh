@@ -121,8 +121,11 @@ oc delete namespace openshift-nfd --ignore-not-found=true --wait=false
 
 # Remove Elasticsearch
 echo "  Removing Elasticsearch operator..."
+# ECK operator can be in either namespace
 oc delete csv -n openshift-operators-redhat -l operators.coreos.com/elasticsearch-operator.openshift-operators-redhat --ignore-not-found=true
+oc delete csv -n openshift-operators -l operators.coreos.com/elasticsearch-eck-operator-certified.openshift-operators --ignore-not-found=true
 oc delete subscription elasticsearch-operator -n openshift-operators-redhat --ignore-not-found=true
+oc delete subscription elasticsearch-eck-operator-certified -n openshift-operators --ignore-not-found=true
 
 echo ""
 echo "9️⃣ Cleaning up remaining resources..."
