@@ -9,8 +9,8 @@ resources:
 components:
   - ../../components/components-serving
   - ../../components/idle-notebook-culling
-  - ../../components/notebook-pod-sizes
-  - ../../components/model-server-pod-sizes
-  - ../../components/nvidia-gpu-accelerator-profile
+  # - ../../components/notebook-pod-sizes  # Disabled: Patches outdated OdhDashboardConfig
+  # - ../../components/model-server-pod-sizes  # Disabled: Patches outdated OdhDashboardConfig
+  # - ../../components/nvidia-gpu-accelerator-profile  # Disabled: Uses outdated AcceleratorProfile CRD
   - ../../components/make-kubeadmin-cluster-admin
   - ../../components/rhods-admins-group

@@ -7,7 +7,7 @@ resources:
   - datasciencecluster.yaml
   - dsc-init.yaml
   - namespace.yaml
-  - odhdashboardconfig.yaml
+  # - odhdashboardconfig.yaml  # Removed: Uses outdated CRD that doesn't exist in v2.22+
   - rhods-role-binding.yaml
   - wait-for-operators-job.yaml
   - wait-for-crds-job.yaml

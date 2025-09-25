@@ -81,14 +81,14 @@ spec:
               echo "Waiting for OpenShift AI operator to be ready..."
               until oc get csv -n redhat-ods-operator | grep -E "rhods-operator.*Succeeded" &>/dev/null; do
                 echo "Waiting for OpenShift AI operator CSV to succeed..."
-                sleep 10
+                sleep 5
               done
               
               # Wait for operator pod to be running
               echo "Waiting for operator pod to be running..."
               until oc get pods -n redhat-ods-operator -l name=rhods-operator --field-selector=status.phase=Running | grep -q Running; do
                 echo "Waiting for operator pod to be in Running state..."
-                sleep 10
+                sleep 5
               done
               
               echo "Operator is running. Waiting for CRDs to be created..."
@@ -97,8 +97,6 @@ spec:
               REQUIRED_CRDS=(
                 "datascienceclusters.datasciencecluster.opendatahub.io"
                 "dscinitializations.dscinitialization.opendatahub.io"
-                "odhdashboardconfigs.opendatahub.io"
-                "acceleratorprofiles.dashboard.opendatahub.io"
               )
               
               # Wait for each CRD with timeout
@@ -108,7 +106,7 @@ spec:
                 MAX_ATTEMPTS=30
                 until oc get crd "$crd" &>/dev/null; do
                   echo "Waiting for CRD $crd to be created... (attempt $ATTEMPTS/$MAX_ATTEMPTS)"
-                  sleep 10
+                  sleep 5
                   ATTEMPTS=$((ATTEMPTS + 1))
                   if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
                     echo "ERROR: Timeout waiting for CRD $crd"

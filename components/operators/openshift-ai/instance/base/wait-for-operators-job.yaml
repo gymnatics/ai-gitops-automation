@@ -76,7 +76,7 @@ spec:
               echo "Checking Service Mesh operator..."
               until oc get csv -n openshift-operators | grep -E "servicemeshoperator.*Succeeded" &>/dev/null; do
                 echo "Waiting for Service Mesh operator to be ready..."
-                sleep 10
+                sleep 5
               done
               echo "✓ Service Mesh operator is ready"
               
@@ -84,7 +84,7 @@ spec:
               echo "Checking Serverless operator..."
               until oc get csv -n openshift-serverless | grep -E "serverless-operator.*Succeeded" &>/dev/null; do
                 echo "Waiting for Serverless operator to be ready..."
-                sleep 10
+                sleep 5
               done
               echo "✓ Serverless operator is ready"
               
@@ -98,7 +98,7 @@ spec:
                 oc get csv -n openshift-operators | grep -i elastic || echo "No Elasticsearch operator found in openshift-operators"
                 echo "Checking in openshift-operators-redhat namespace (where Red Hat ES operator is typically installed)..."
                 oc get csv -n openshift-operators-redhat | grep -i elastic || echo "No Elasticsearch operator found in openshift-operators-redhat"
-                sleep 10
+                sleep 5
               done
               echo "✓ Elasticsearch operator is ready"
               
