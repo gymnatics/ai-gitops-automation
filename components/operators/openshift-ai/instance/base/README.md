@@ -21,10 +21,14 @@ The `wait-for-operators-job.yaml` creates a job that ensures all required operat
 ### Elasticsearch Operator Detection
 
 The Elasticsearch operator check supports both:
-- **ECK (Elastic Cloud on Kubernetes) Operator** - Usually installed as `elasticsearch-eck-operator-certified` in `openshift-operators`
+- **ECK (Elastic Cloud on Kubernetes) Operator** - Installed in `openshift-operators` namespace, but runs its pods in `elasticsearch-operator` namespace
 - **Red Hat Elasticsearch Operator** - Usually installed as `elasticsearch-operator` in `openshift-operators-redhat`
 
-The job will check both namespaces and look for either operator pattern to ensure compatibility with different installation methods.
+The job checks for the CSV (ClusterServiceVersion) in the namespace where the operator is **installed**, not where it runs:
+- For ECK: Checks `openshift-operators` namespace for any CSV with "elastic" in the name
+- For Red Hat ES: Checks `openshift-operators-redhat` namespace
+
+Note: The ECK operator shows as "Elasticsearch (ECK) Operator" in the UI and typically has its operator pods running in the `elasticsearch-operator` namespace, but the CSV is in `openshift-operators`.
 
 ## Troubleshooting
 

@@ -90,14 +90,14 @@ spec:
               
               # Check Elasticsearch operator
               echo "Checking Elasticsearch operator..."
-              # ECK operator can be in either openshift-operators or openshift-operators-redhat
-              until oc get csv -n openshift-operators | grep -E "(elasticsearch-eck-operator|elasticsearch-operator).*Succeeded" &>/dev/null || \
+              # ECK operator is installed in openshift-operators but runs in elasticsearch-operator namespace
+              until oc get csv -n openshift-operators | grep -i "elastic.*Succeeded" &>/dev/null || \
                     oc get csv -n openshift-operators-redhat | grep -E "(elasticsearch-eck-operator|elasticsearch-operator).*Succeeded" &>/dev/null; do
                 echo "Waiting for Elasticsearch operator to be ready..."
-                echo "Checking in openshift-operators namespace..."
-                oc get csv -n openshift-operators | grep -i elastic || true
-                echo "Checking in openshift-operators-redhat namespace..."
-                oc get csv -n openshift-operators-redhat | grep -i elastic || true
+                echo "Checking in openshift-operators namespace (where ECK is typically installed)..."
+                oc get csv -n openshift-operators | grep -i elastic || echo "No Elasticsearch operator found in openshift-operators"
+                echo "Checking in openshift-operators-redhat namespace (where Red Hat ES operator is typically installed)..."
+                oc get csv -n openshift-operators-redhat | grep -i elastic || echo "No Elasticsearch operator found in openshift-operators-redhat"
                 sleep 10
               done
               echo "✓ Elasticsearch operator is ready"
