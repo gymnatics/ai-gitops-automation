@@ -65,7 +65,8 @@ The fix script will:
 oc apply -f components/operators/openshift-ai/instance/components/make-kubeadmin-cluster-admin/rolebinding.yaml
 
 # Add to rhods-admins group
-oc adm groups add-users rhods-admins kube:admin
+# Note: The b64: prefix is required for usernames containing colons
+oc adm groups add-users rhods-admins b64:kube:admin
 ```
 
 ### 4. GitOps Console Plugin Job Error

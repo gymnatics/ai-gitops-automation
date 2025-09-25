@@ -5,4 +5,4 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 users:
-  - kube:admin
+  - b64:kube:admin

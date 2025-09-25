@@ -157,7 +157,7 @@ kind: Group
 metadata:
   name: rhods-admins
 users:
-  - kube:admin
+  - b64:kube:admin
 EOF
     
     echo "✅ Permissions configured"
