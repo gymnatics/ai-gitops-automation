@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-gpu-status
+  namespace: redhat-ods-applications
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
+data:
+  # This ConfigMap is used by OpenShift AI to track GPU configuration
+  # Setting this allows the dashboard to properly detect and use GPUs
+  migratedCompleted: "true"
+---
+apiVersion: v1
+kind: ConfigMap  
+metadata:
+  name: nvidia-gpu-config
+  namespace: redhat-ods-applications
+  labels:
+    opendatahub.io/dashboard: "true"
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
+data:
+  # GPU tolerations that will be automatically applied to GPU workloads
+  tolerations: |
+    [
+      {
+        "key": "nvidia.com/gpu",
+        "operator": "Exists",
+        "effect": "NoSchedule"
+      },
+      {
+        "key": "nvidia-gpu-only",
+        "operator": "Exists", 
+        "effect": "NoSchedule"
+      }
+    ]
