@@ -25,6 +25,10 @@ spec:
         automated:
           prune: false
           selfHeal: true
+        syncOptions:
+          - ServerSideApply=true
+          - Validate=false
+          - SkipDryRunOnMissingResource=true
         retry:
           limit: 5
           backoff:
