@@ -3,7 +3,7 @@ kind: DSCInitialization
 metadata:
   name: default-dsci
   annotations:
-    argocd.argoproj.io/sync-wave: "20"
+    argocd.argoproj.io/sync-wave: "11"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true,ServerSideApply=true
 spec:
   applicationsNamespace: redhat-ods-applications

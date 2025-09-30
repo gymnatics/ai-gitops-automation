@@ -3,14 +3,14 @@ kind: ServiceAccount
 metadata:
   name: wait-for-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/sync-wave: "8"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: wait-for-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/sync-wave: "8"
 rules:
   - apiGroups:
       - operators.coreos.com
@@ -34,7 +34,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: wait-for-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/sync-wave: "8"
 subjects:
   - kind: ServiceAccount
     name: wait-for-operators
@@ -49,7 +49,7 @@ kind: Job
 metadata:
   name: wait-for-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "13"
+    argocd.argoproj.io/sync-wave: "8"
     argocd.argoproj.io/hook: Sync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:

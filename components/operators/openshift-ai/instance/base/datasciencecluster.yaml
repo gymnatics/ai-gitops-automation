@@ -4,7 +4,7 @@ metadata:
   name: default
   annotations:
     argocd.argoproj.io/sync-options: ServerSideApply=true,Validate=false,SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "25"
+    argocd.argoproj.io/sync-wave: "12"
 spec:
   components:
     dashboard:

@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: check-rhods-operator-status
+  namespace: redhat-ods-operator
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: phase-check
+          image: 'image-registry.openshift-image-registry.svc:5000/openshift/tools:latest'
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+              echo "Checking Pod status.phase..."
+              POD_PHASE=$(oc get pod -n redhat-ods-operator -l name=rhods-operator -o jsonpath='{.items[0].status.phase}')
+              if [ "$POD_PHASE" = "Running" ]; then
+                echo "Pod is in Running phase."
+                exit 0
+              else
+                echo "Pod is in $POD_PHASE phase."
+              fi
+              sleep 5
+              done
+      serviceAccountName: rhods-operator-check
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rhods-operator-check
+  namespace: redhat-ods-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: rhods-operator-check
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rhods-operator-check
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+subjects:
+- kind: ServiceAccount
+  name: rhods-operator-check
+  namespace: redhat-ods-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rhods-operator-check
