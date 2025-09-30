@@ -4,5 +4,6 @@ metadata:
   name: rhods-admins
   annotations:
     argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: Replace=true
 users:
   - b64:kube:admin
