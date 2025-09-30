@@ -39,4 +39,3 @@ spec:
       managementState: Managed
     trainingoperator:
       managementState: Managed
-  enableComponentMonitoring: true
